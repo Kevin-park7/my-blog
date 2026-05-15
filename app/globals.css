@@ -1,0 +1,90 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #FFFAF0;
+  color: #1F2937;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+/* 헤딩 스타일 */
+h1 {
+  font-size: 36px;
+  font-weight: 700;
+  color: #111E3F;
+  margin-bottom: 24px;
+}
+
+h2 {
+  font-size: 28px;
+  font-weight: 600;
+  color: #FF9500;
+  margin-bottom: 20px;
+  margin-top: 32px;
+}
+
+h3 {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1F2937;
+  margin-bottom: 16px;
+  margin-top: 24px;
+}
+
+p {
+  line-height: 1.75;
+  margin-bottom: 16px;
+}
+
+code {
+  background-color: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+}
+
+pre {
+  background-color: #1F2937;
+  color: #f0f0f0;
+  padding: 16px;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 24px 0;
+}
+
+pre code {
+  background: none;
+  color: inherit;
+  padding: 0;
+}
+
+a {
+  color: #FF9500;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s;
+}
+
+a:hover {
+  border-bottom-color: #FF9500;
+}
+
+/* 이미지 반응형 */
+img {
+  max-width: 100%;
+  height: auto;
+  margin: 24px 0;
+  border-radius: 8px;
+}
