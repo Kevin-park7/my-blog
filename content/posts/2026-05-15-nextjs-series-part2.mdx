@@ -1,0 +1,40 @@
+---
+title: "Next.js 블로그 만들기 - Part 2: 포스트 시스템 구축"
+date: "2026-05-15"
+tags: ["Next.js", "블로그", "튜토리얼"]
+series: "Next.js 블로그 만들기"
+seriesOrder: 2
+---
+
+# Next.js 블로그 만들기 - Part 2: 포스트 시스템 구축
+
+Part 1에서 프로젝트를 생성했으니, 이제 포스트 시스템을 구축합니다.
+
+## gray-matter 설치
+
+MDX 파일의 frontmatter를 파싱하기 위해 gray-matter를 설치합니다:
+
+```bash
+npm install gray-matter
+```
+
+## Post 인터페이스 정의
+
+`src/lib/posts.ts`에서 Post 타입을 정의합니다:
+
+```typescript
+export interface Post {
+  slug: string;
+  title: string;
+  date: string;
+  tags: string[];
+  content: string;
+  excerpt?: string;
+}
+```
+
+## 포스트 읽기
+
+파일 시스템에서 포스트를 읽고 파싱하는 함수를 만듭니다.
+
+다음 파트에서는 포스트 목록을 표시할 예정입니다.

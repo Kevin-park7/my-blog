@@ -1,0 +1,321 @@
+---
+title: "개발자를 위한 Python 시작하기"
+date: "2026-05-15"
+tags: ["Python","기초","학습"]
+---
+
+
+# 개발자를 위한 Python 시작하기
+
+다른 언어를 이미 알고 있다면 Python 배우기는 놀랍게도 쉽습니다. 이 글에서는 개발자 관점에서 Python의 핵심을 빠르게 학습합니다.
+
+## Python은 왜 인기가 많을까?
+
+Python이 개발자들 사이에서 사랑받는 이유:
+
+- **간결한 문법**: 생각하는 대로 코드를 쓸 수 있음
+- **다재다능함**: 웹, 데이터, AI, 자동화 모두 가능
+- **풍부한 라이브러리**: 거의 모든 작업을 위한 패키지 존재
+- **커뮤니티**: 강력한 생태계와 학습 자료
+
+## 설치부터 실행까지
+
+### Mac/Linux에서 Python 설치
+
+```bash
+# Homebrew 사용 (권장)
+brew install python@3.12
+
+# 버전 확인
+python3 --version
+```
+
+### Windows에서 설치
+
+[python.org](https://www.python.org/)에서 인스톨러 다운로드 후 실행합니다.
+**중요**: "Add Python to PATH" 체크!
+
+### 첫 프로그램 실행
+
+```bash
+# 파이썬 인터프리터 시작
+python3
+
+# 간단한 출력
+print("Hello, Python!")
+
+# 종료
+exit()
+```
+
+## 기초 문법: 변수와 타입
+
+### 변수 선언 (선언이 없음!)
+
+```python
+# Python은 동적 타입 언어
+name = "Kelvin"        # 문자열
+age = 25               # 정수
+height = 180.5         # 실수
+is_developer = True    # 불린
+
+# 타입 확인
+print(type(name))      # <class 'str'>
+print(type(age))       # <class 'int'>
+```
+
+### 문자열 처리
+
+```python
+# 문자열 연결
+greeting = "Hello, " + name
+print(greeting)        # Hello, Kelvin
+
+# f-string (권장 방식)
+message = f"My name is {name} and I'm {age} years old"
+
+# 메서드 활용
+text = "Python is fun"
+print(text.upper())    # PYTHON IS FUN
+print(text.replace("fun", "awesome"))  # Python is awesome
+```
+
+### 리스트 (배열 같은 거)
+
+```python
+# 리스트 생성
+languages = ["JavaScript", "Python", "TypeScript"]
+
+# 접근
+print(languages[0])    # JavaScript
+
+# 추가
+languages.append("Go")
+
+# 반복
+for lang in languages:
+    print(f"I know {lang}")
+
+# 리스트 컴프리헨션 (강력한 기능!)
+squared = [x**2 for x in [1, 2, 3, 4, 5]]
+# 결과: [1, 4, 9, 16, 25]
+```
+
+### 딕셔너리 (객체처럼)
+
+```python
+# 딕셔너리 생성
+user = {
+    "name": "Kelvin",
+    "age": 25,
+    "languages": ["Python", "JavaScript"]
+}
+
+# 접근
+print(user["name"])    # Kelvin
+
+# 수정
+user["age"] = 26
+
+# 순회
+for key, value in user.items():
+    print(f"{key}: {value}")
+```
+
+## 함수 작성
+
+```python
+# 기본 함수
+def greet(name):
+    return f"Hello, {name}!"
+
+print(greet("Kelvin"))  # Hello, Kelvin!
+
+# 기본 파라미터
+def introduce(name, role="Developer"):
+    return f"{name} is a {role}"
+
+print(introduce("Kelvin"))           # Kelvin is a Developer
+print(introduce("Kelvin", "Athlete")) # Kelvin is a Athlete
+
+# 여러 값 반환
+def get_user_info():
+    return "Kelvin", 25, "Seoul"
+
+name, age, city = get_user_info()
+
+# Type hints (권장)
+def add(a: int, b: int) -> int:
+    return a + b
+
+result = add(5, 3)  # result = 8
+```
+
+## 제어 흐름
+
+### 조건문
+
+```python
+age = 25
+
+if age < 18:
+    print("Teenager")
+elif age < 65:
+    print("Adult")
+else:
+    print("Senior")
+
+# 삼항 연산자
+status = "Adult" if age >= 18 else "Teenager"
+```
+
+### 반복문
+
+```python
+# for 루프
+for i in range(5):
+    print(i)  # 0, 1, 2, 3, 4
+
+# while 루프
+count = 0
+while count < 3:
+    print(count)
+    count += 1
+
+# break와 continue
+for i in range(10):
+    if i == 3:
+        continue  # 3은 건너뛰기
+    if i == 7:
+        break     # 7에서 멈추기
+    print(i)
+```
+
+## 개발자가 자주 하는 작업
+
+### 파일 읽고 쓰기
+
+```python
+# 파일 읽기
+with open("data.txt", "r") as file:
+    content = file.read()
+    print(content)
+
+# 파일 쓰기
+with open("output.txt", "w") as file:
+    file.write("Hello, World!")
+
+# 파일 한 줄씩 읽기
+with open("data.txt", "r") as file:
+    for line in file:
+        print(line.strip())
+```
+
+### JSON 처리
+
+```python
+import json
+
+# JSON 문자열을 Python 객체로
+json_string = '{"name": "Kelvin", "age": 25}'
+data = json.loads(json_string)
+print(data["name"])  # Kelvin
+
+# Python 객체를 JSON으로
+user = {"name": "Kelvin", "age": 25}
+json_output = json.dumps(user)
+print(json_output)  # {"name": "Kelvin", "age": 25}
+```
+
+### HTTP 요청 (requests 라이브러리)
+
+```bash
+# 설치
+pip install requests
+```
+
+```python
+import requests
+
+# GET 요청
+response = requests.get("https://api.github.com/users/torvalds")
+data = response.json()
+print(data["name"])
+
+# POST 요청
+payload = {"title": "Hello", "body": "World"}
+response = requests.post("https://api.example.com/posts", json=payload)
+print(response.status_code)
+```
+
+## 가상환경 (중요!)
+
+Python 프로젝트마다 독립적인 환경을 만드는 것이 좋습니다:
+
+```bash
+# 가상환경 생성
+python3 -m venv venv
+
+# 활성화 (Mac/Linux)
+source venv/bin/activate
+
+# 활성화 (Windows)
+venv\Scripts\activate
+
+# 패키지 설치 (격리된 환경에서만)
+pip install requests pandas
+
+# 활성화 종료
+deactivate
+```
+
+## 패키지 관리 (pip)
+
+```bash
+# 패키지 설치
+pip install pandas
+
+# 특정 버전 설치
+pip install numpy==1.21.0
+
+# requirements.txt에서 설치
+pip install -r requirements.txt
+
+# requirements.txt 생성
+pip freeze > requirements.txt
+```
+
+## Python의 장점 (개발자 관점)
+
+| 특징 | 설명 |
+|------|------|
+| **간결함** | JavaScript보다 더 깨끗한 문법 |
+| **타입 힌트** | 동적 언어이지만 TypeScript처럼 타입 지정 가능 |
+| **리스트 컴프리헨션** | 배열 변환을 매우 우아하게 |
+| **데코레이터** | 함수/클래스 기능 확장 (매우 강력) |
+| **REPL** | 즉시 실행으로 빠른 테스트 |
+
+## 다음 단계
+
+### 1단계: 기초 익히기
+- 변수, 함수, 클래스 완벽히 이해
+- 리스트/딕셔너리 다루기
+
+### 2단계: 실전 프로젝트
+- 간단한 CLI 도구 만들기
+- 웹 스크래핑
+- 데이터 처리
+
+### 3단계: 심화 학습
+- 클래스와 객체 지향
+- 데코레이터와 메타프로그래밍
+- 비동기 프로그래밍
+
+## 학습 자료
+
+- **공식 문서**: https://docs.python.org/3/
+- **Real Python**: 실전 튜토리얼
+- **Codewars**: 문제 풀이로 연습
+- **LeetCode**: 알고리즘 문제
+
+Python은 배우기 쉽지만, 깊이는 무한합니다. 지금 시작하세요!

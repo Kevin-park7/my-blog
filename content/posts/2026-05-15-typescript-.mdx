@@ -1,39 +1,412 @@
 ---
-title: "TypeScript 기초 완벽 가이드"
+title: "TypeScript 심화: 제네릭과 유틸리티 타입"
 date: "2026-05-15"
-tags: ["TypeScript","기초","학습"]
+tags: ["TypeScript","고급","타입"]
 ---
 
 
-# TypeScript 기초 완벽 가이드
+# TypeScript 심화: 제네릭과 유틸리티 타입
 
-## 개요
-TypeScript는 JavaScript에 정적 타입을 추가한 언어입니다. 이 가이드에서는 TypeScript의 기본을 배워봅시다.
+TypeScript를 제대로 마스터하려면 제네릭(Generics)과 유틸리티 타입을 이해해야 합니다. 이 글에서는 실전 예제를 통해 이 강력한 기능들을 배웁니다.
 
-## 주요 개념
+## 제네릭이란?
 
-### 1. 기본 타입
+제네릭은 **타입을 변수처럼 사용**하는 것입니다. C#이나 Java처럼 "나중에 결정될 타입"을 미리 준비해두는 것이죠.
+
+### 제네릭 함수
+
 ```typescript
-const name: string = "켈빈";
-const age: number = 27;
-const isActive: boolean = true;
+// 제네릭 없이: 타입을 반복해야 함
+function getFirstNumber(arr: number[]): number {
+  return arr[0];
+}
+
+function getFirstString(arr: string[]): string {
+  return arr[0];
+}
+
+// 제네릭으로: 한 번에 해결
+function getFirst<T>(arr: T[]): T {
+  return arr[0];
+}
+
+// 사용
+const num = getFirst<number>([1, 2, 3]);        // 타입: number
+const str = getFirst<string>(["a", "b", "c"]); // 타입: string
+
+// 타입 추론도 가능 (명시 생략)
+const first = getFirst([1, 2, 3]); // TypeScript가 number로 자동 인식
 ```
 
-### 2. 인터페이스
+### 제네릭 인터페이스
+
 ```typescript
+// API 응답을 처리하는 제네릭 인터페이스
+interface ApiResponse<T> {
+  status: number;
+  data: T;
+  error?: string;
+}
+
 interface User {
   id: number;
   name: string;
   email: string;
 }
+
+// 사용
+const userResponse: ApiResponse<User> = {
+  status: 200,
+  data: {
+    id: 1,
+    name: "Kelvin",
+    email: "kelvin@example.com"
+  }
+};
+
+const numbersResponse: ApiResponse<number[]> = {
+  status: 200,
+  data: [1, 2, 3]
+};
 ```
 
-### 3. 제네릭
+### 제네릭 클래스
+
 ```typescript
-function getFirstElement<T>(arr: T[]): T {
-  return arr[0];
+class Repository<T> {
+  private items: T[] = [];
+
+  add(item: T): void {
+    this.items.push(item);
+  }
+
+  getAll(): T[] {
+    return this.items;
+  }
+
+  findById(id: number): T | undefined {
+    return this.items[id];
+  }
+}
+
+// 사용
+interface Post {
+  id: number;
+  title: string;
+  content: string;
+}
+
+const postRepo = new Repository<Post>();
+postRepo.add({
+  id: 1,
+  title: "TypeScript는 멋있다",
+  content: "..."
+});
+
+const allPosts = postRepo.getAll(); // 타입: Post[]
+```
+
+## 제네릭 제약 (Constraints)
+
+제네릭에 "조건"을 추가할 수 있습니다:
+
+```typescript
+// 제약: T는 string이나 number여야 함
+function printValue<T extends string | number>(value: T): void {
+  console.log(value);
+}
+
+printValue("hello");  // OK
+printValue(42);       // OK
+printValue(true);     // Error: boolean은 조건을 만족하지 않음
+
+// 실전 예제: 객체의 특정 키만 받기
+interface HasId {
+  id: number;
+}
+
+function printId<T extends HasId>(obj: T): void {
+  console.log(obj.id);
+}
+
+printId({ id: 1, name: "Kelvin" }); // OK
+printId({ name: "Kelvin" });         // Error: id가 없음
+
+// keyof를 사용한 제약
+function getProperty<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key];
+}
+
+const user = { name: "Kelvin", age: 25 };
+const name = getProperty(user, "name");  // OK, 타입: string
+getProperty(user, "email");              // Error: email은 user에 없음
+```
+
+## 유틸리티 타입
+
+TypeScript가 제공하는 내장 제네릭 타입들입니다.
+
+### 1. Pick<T, K> - 특정 속성만 선택
+
+```typescript
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+}
+
+// password를 제외한 속성만
+type UserPreview = Pick<User, "id" | "name" | "email">;
+
+// 동일:
+// type UserPreview = {
+//   id: number;
+//   name: string;
+//   email: string;
+// }
+
+const preview: UserPreview = {
+  id: 1,
+  name: "Kelvin",
+  email: "kelvin@example.com"
+};
+```
+
+### 2. Omit<T, K> - 특정 속성 제외
+
+```typescript
+// password를 제외
+type UserWithoutPassword = Omit<User, "password">;
+
+// Pick과 반대 개념
+const user: UserWithoutPassword = {
+  id: 1,
+  name: "Kelvin",
+  email: "kelvin@example.com"
+  // password는 없어야 함
+};
+```
+
+### 3. Partial<T> - 모든 속성 선택사항으로
+
+```typescript
+// 모든 속성이 선택사항(optional)이 됨
+type UserUpdate = Partial<User>;
+
+// 동일:
+// type UserUpdate = {
+//   id?: number;
+//   name?: string;
+//   email?: string;
+//   password?: string;
+// }
+
+function updateUser(id: number, changes: UserUpdate): void {
+  // name만 업데이트할 수 있음
+}
+
+updateUser(1, { name: "New Name" }); // OK
+```
+
+### 4. Required<T> - 모든 속성 필수로
+
+```typescript
+interface Maybe {
+  id?: number;
+  name?: string;
+}
+
+// 모든 속성이 필수가 됨
+type MustHave = Required<Maybe>;
+
+// 동일:
+// type MustHave = {
+//   id: number;
+//   name: string;
+// }
+
+const obj: MustHave = {
+  id: 1,
+  name: "Kelvin"
+  // 둘 다 필수!
+};
+```
+
+### 5. Record<K, V> - 객체 타입 정의
+
+```typescript
+// 특정 키들을 모두 가져야 하는 객체
+type Status = "pending" | "approved" | "rejected";
+type StatusMessages = Record<Status, string>;
+
+const messages: StatusMessages = {
+  pending: "검토 중입니다",
+  approved: "승인되었습니다",
+  rejected: "거절되었습니다"
+};
+
+// 실전 예제: API 응답 캐시
+type ApiEndpoints = Record<"users" | "posts" | "comments", string>;
+
+const endpoints: ApiEndpoints = {
+  users: "https://api.example.com/users",
+  posts: "https://api.example.com/posts",
+  comments: "https://api.example.com/comments"
+};
+```
+
+### 6. Readonly<T> - 읽기 전용
+
+```typescript
+interface Config {
+  apiKey: string;
+  timeout: number;
+}
+
+type ImmutableConfig = Readonly<Config>;
+
+// 동일:
+// type ImmutableConfig = {
+//   readonly apiKey: string;
+//   readonly timeout: number;
+// }
+
+const config: ImmutableConfig = {
+  apiKey: "secret",
+  timeout: 5000
+};
+
+config.timeout = 10000; // Error: readonly 속성이므로 수정 불가
+```
+
+### 7. Exclude<T, U> - 타입 제외
+
+```typescript
+type Status = "pending" | "approved" | "rejected" | "draft";
+
+// "draft" 제외
+type PublicStatus = Exclude<Status, "draft">;
+
+// 동일:
+// type PublicStatus = "pending" | "approved" | "rejected"
+
+const status: PublicStatus = "pending"; // OK
+const bad: PublicStatus = "draft";      // Error
+```
+
+### 8. Extract<T, U> - 타입 추출
+
+```typescript
+type Status = "pending" | "approved" | "rejected" | "draft";
+
+// "pending"과 "approved"만 추출
+type ActiveStatus = Extract<Status, "pending" | "approved">;
+
+// 동일:
+// type ActiveStatus = "pending" | "approved"
+```
+
+## 실전 예제: API 클라이언트 만들기
+
+제네릭과 유틸리티 타입을 활용한 실제 사용 사례:
+
+```typescript
+// API 응답 형태
+interface ApiResponse<T> {
+  status: number;
+  data: T;
+  timestamp: string;
+}
+
+// 사용자 데이터
+interface User {
+  id: number;
+  name: string;
+  email: string;
+  password: string;
+  createdAt: string;
+}
+
+// 클라이언트에 보낼 사용자 정보 (password 제외)
+type PublicUser = Omit<User, "password">;
+
+// API 클래스
+class ApiClient {
+  async getUser(id: number): Promise<ApiResponse<PublicUser>> {
+    // 서버에서 모든 데이터를 가져옴
+    const response = await fetch(`/api/users/${id}`);
+    const data = await response.json();
+    
+    // password는 제거하고 반환
+    const { password, ...user } = data;
+    return {
+      status: 200,
+      data: user,
+      timestamp: new Date().toISOString()
+    };
+  }
+
+  // 부분 업데이트
+  async updateUser(
+    id: number,
+    changes: Partial<PublicUser>
+  ): Promise<ApiResponse<PublicUser>> {
+    const response = await fetch(`/api/users/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify(changes)
+    });
+    return response.json();
+  }
+
+  // 배치 조회
+  async getUsers(
+    filters: Record<"status" | "role", string>
+  ): Promise<ApiResponse<PublicUser[]>> {
+    const query = new URLSearchParams(filters);
+    const response = await fetch(`/api/users?${query}`);
+    return response.json();
+  }
 }
 ```
 
-## 결론
-TypeScript는 안정성과 생산성을 동시에 제공합니다.
+## 베스트 프랙티스
+
+### DO ✅
+
+```typescript
+// 좋음: 제약을 명확하게
+function logFirstElement<T extends { length: number }>(arr: T): void {
+  console.log(arr[0]);
+}
+
+// 좋음: 유틸리티 타입 활용
+type ApiPayload = Omit<User, "id" | "createdAt">;
+
+// 좋음: 일관된 제네릭 네이밍
+interface Container<T> { value: T; }
+interface Pair<A, B> { first: A; second: B; }
+```
+
+### DON'T ❌
+
+```typescript
+// 나쁨: 너무 광범위한 제약
+function doSomething<T>(value: T): void { }
+
+// 나쁨: any 사용
+type Anything = Record<string, any>;
+
+// 나쁨: 과도한 제네릭 중첩
+type Deeply<A<B<C<D>>>> = /* ... */
+```
+
+## 학습 체크리스트
+
+- [ ] 제네릭 함수, 인터페이스, 클래스 이해
+- [ ] keyof와 extends 활용
+- [ ] Pick, Omit, Partial, Required 사용 능숙
+- [ ] Record와 Readonly 구분
+- [ ] 실전 API 클라이언트에 적용
+
+이제 TypeScript를 진정한 의미에서 마스터했습니다!
