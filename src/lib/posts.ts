@@ -11,6 +11,8 @@ export interface Post {
   tags: string[];
   content: string;
   excerpt?: string;
+  series?: string;        // Series name (e.g., "Next.js 블로그 만들기")
+  seriesOrder?: number;   // Order within series (1, 2, 3...)
 }
 
 export function getAllPosts(): Post[] {
@@ -35,6 +37,8 @@ export function getAllPosts(): Post[] {
         tags: data.tags || [],
         content,
         excerpt: data.excerpt || content.substring(0, 200),
+        series: data.series || undefined,
+        seriesOrder: data.seriesOrder || undefined,
       };
     })
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
@@ -59,5 +63,7 @@ export function getPostBySlug(slug: string): Post | null {
     tags: data.tags || [],
     content,
     excerpt: data.excerpt || content.substring(0, 200),
+    series: data.series || undefined,
+    seriesOrder: data.seriesOrder || undefined,
   };
 }

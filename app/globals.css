@@ -18,12 +18,25 @@ body {
   font-family: system-ui, -apple-system, sans-serif;
 }
 
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #030712;
+    color: #e5e7eb;
+  }
+}
+
 /* 헤딩 스타일 */
 h1 {
   font-size: 36px;
   font-weight: 700;
   color: #111E3F;
   margin-bottom: 24px;
+}
+
+@media (prefers-color-scheme: dark) {
+  h1 {
+    color: #f3f4f6;
+  }
 }
 
 h2 {
@@ -34,12 +47,24 @@ h2 {
   margin-top: 32px;
 }
 
+@media (prefers-color-scheme: dark) {
+  h2 {
+    color: #fdba74;
+  }
+}
+
 h3 {
   font-size: 24px;
   font-weight: 600;
   color: #1F2937;
   margin-bottom: 16px;
   margin-top: 24px;
+}
+
+@media (prefers-color-scheme: dark) {
+  h3 {
+    color: #d1d5db;
+  }
 }
 
 p {
@@ -55,6 +80,13 @@ code {
   font-size: 14px;
 }
 
+@media (prefers-color-scheme: dark) {
+  code {
+    background-color: #374151;
+    color: #f3f4f6;
+  }
+}
+
 pre {
   background-color: #1F2937;
   color: #f0f0f0;
@@ -62,6 +94,13 @@ pre {
   border-radius: 8px;
   overflow-x: auto;
   margin: 24px 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  pre {
+    background-color: #111827;
+    color: #e5e7eb;
+  }
 }
 
 pre code {
@@ -77,8 +116,20 @@ a {
   transition: border-color 0.2s;
 }
 
+@media (prefers-color-scheme: dark) {
+  a {
+    color: #fdba74;
+  }
+}
+
 a:hover {
   border-bottom-color: #FF9500;
+}
+
+@media (prefers-color-scheme: dark) {
+  a:hover {
+    border-bottom-color: #fdba74;
+  }
 }
 
 /* 이미지 반응형 */

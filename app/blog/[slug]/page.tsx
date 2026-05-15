@@ -1,58 +1,59 @@
 import { notFound } from 'next/navigation';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { SeriesNav } from '@/components/SeriesNav';
 import { getPostBySlug, getAllPosts } from '@/lib/posts';
 import { formatDate } from '@/lib/utils';
 import { MDXRemote } from 'next-mdx-remote/rsc';
 
 const components = {
   h1: ({ children }: any) => (
-    <h1 className="text-4xl font-bold text-blue-900 mt-8 mb-4">
+    <h1 className="text-4xl font-bold text-blue-900 dark:text-blue-200 mt-8 mb-4">
       {children}
     </h1>
   ),
   h2: ({ children }: any) => (
-    <h2 className="text-3xl font-semibold text-orange-500 mt-8 mb-4">
+    <h2 className="text-3xl font-semibold text-orange-500 dark:text-orange-400 mt-8 mb-4">
       {children}
     </h2>
   ),
   h3: ({ children }: any) => (
-    <h3 className="text-2xl font-semibold text-gray-800 mt-6 mb-3">
+    <h3 className="text-2xl font-semibold text-gray-800 dark:text-gray-200 mt-6 mb-3">
       {children}
     </h3>
   ),
   p: ({ children }: any) => (
-    <p className="text-gray-700 leading-relaxed mb-4">
+    <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
       {children}
     </p>
   ),
   a: ({ href, children }: any) => (
-    <a href={href} className="text-orange-500 hover:underline">
+    <a href={href} className="text-orange-500 dark:text-orange-400 hover:underline">
       {children}
     </a>
   ),
   ul: ({ children }: any) => (
-    <ul className="list-disc list-inside mb-4 space-y-2 text-gray-700">
+    <ul className="list-disc list-inside mb-4 space-y-2 text-gray-700 dark:text-gray-300">
       {children}
     </ul>
   ),
   ol: ({ children }: any) => (
-    <ol className="list-decimal list-inside mb-4 space-y-2 text-gray-700">
+    <ol className="list-decimal list-inside mb-4 space-y-2 text-gray-700 dark:text-gray-300">
       {children}
     </ol>
   ),
   code: ({ className, children }: any) => (
-    <code className={`${className} bg-gray-200 px-1 py-0.5 rounded text-sm`}>
+    <code className={`${className} bg-gray-200 dark:bg-gray-800 dark:text-gray-100 px-1 py-0.5 rounded text-sm`}>
       {children}
     </code>
   ),
   pre: ({ children }: any) => (
-    <pre className="bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4 text-sm">
+    <pre className="bg-gray-900 dark:bg-gray-950 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4 text-sm">
       {children}
     </pre>
   ),
   blockquote: ({ children }: any) => (
-    <blockquote className="border-l-4 border-orange-500 pl-4 italic text-gray-600 my-4">
+    <blockquote className="border-l-4 border-orange-500 dark:border-orange-400 pl-4 italic text-gray-600 dark:text-gray-400 my-4">
       {children}
     </blockquote>
   ),
@@ -101,18 +102,34 @@ export default async function BlogPostPage({
     notFound();
   }
 
+  // Get series posts if this post is part of a series
+  let seriesPosts = null;
+  if (post.series) {
+    const allPosts = getAllPosts();
+    seriesPosts = allPosts.filter((p) => p.series === post.series);
+  }
+
   return (
     <>
       <Header />
       <main className="max-w-3xl mx-auto px-6 py-12">
         <article>
+          {/* Series Navigation */}
+          {seriesPosts && seriesPosts.length > 0 && (
+            <SeriesNav
+              seriesName={post.series!}
+              allSeriesPosts={seriesPosts}
+              currentSlug={slug}
+            />
+          )}
+
           {/* Header */}
           <header className="mb-8">
-            <h1 className="text-4xl font-bold text-blue-900 mb-4">
+            <h1 className="text-4xl font-bold text-blue-900 dark:text-blue-200 mb-4">
               {post.title}
             </h1>
             <div className="flex items-center justify-between mb-4">
-              <time className="text-gray-600">
+              <time className="text-gray-600 dark:text-gray-400">
                 {formatDate(post.date)}
               </time>
             </div>
@@ -121,7 +138,7 @@ export default async function BlogPostPage({
                 {post.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="bg-orange-100 text-orange-700 text-sm px-3 py-1 rounded-full"
+                    className="bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-200 text-sm px-3 py-1 rounded-full"
                   >
                     #{tag}
                   </span>
@@ -131,13 +148,13 @@ export default async function BlogPostPage({
           </header>
 
           {/* Content */}
-          <div className="prose prose-lg max-w-none">
+          <div className="prose prose-lg max-w-none dark:prose-invert">
             <MDXRemote source={post.content} components={components} />
           </div>
 
           {/* Footer */}
-          <footer className="mt-12 pt-8 border-t-2 border-gray-200">
-            <p className="text-gray-600 text-center">
+          <footer className="mt-12 pt-8 border-t-2 border-gray-200 dark:border-gray-700">
+            <p className="text-gray-600 dark:text-gray-400 text-center">
               이 포스트가 도움이 되셨나요? 피드백은 환영합니다! 💌
             </p>
           </footer>
