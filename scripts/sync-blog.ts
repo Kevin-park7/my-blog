@@ -9,9 +9,11 @@ function slugify(text: string): string {
   return text
     .toLowerCase()
     .trim()
-    .replace(/[^\w\s-]/g, '')
+    // Remove Korean and special chars, keep only alphanumeric and spaces
+    .replace(/[^\w\s\-A-Za-z0-9]/g, '')
     .replace(/\s+/g, '-')
-    .replace(/-+/g, '-');
+    .replace(/-+/g, '-')
+    .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
 }
 
 function syncBlog() {
@@ -46,10 +48,13 @@ function syncBlog() {
       const filename = `${date}-${slug}.mdx`;
       const filePath_out = path.join(POSTS_DIR, filename);
 
+      const tagsFormatted = JSON.stringify(tags)
+        .replace(/,/g, ', '); // Add space after commas for readability
+
       const mdxContent = `---
 title: "${title}"
 date: "${date}"
-tags: ${JSON.stringify(tags)}
+tags: ${tagsFormatted}
 ---
 
 ${body}`;
