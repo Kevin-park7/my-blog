@@ -1,65 +1,75 @@
-import Image from "next/image";
+import { Header } from '@/components/Header';
+import { Footer } from '@/components/Footer';
+import { PostCard } from '@/components/PostCard';
+import { HappyBanner } from '@/components/HappyBanner';
+import { getAllPosts } from '../../lib/posts';
 
 export default function Home() {
+  const posts = getAllPosts().slice(0, 3);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <>
+      <Header />
+      <main className="max-w-4xl mx-auto px-6 py-12">
+        {/* Hero Section */}
+        <section className="text-center mb-16">
+          <h1 className="text-5xl font-bold text-blue-900 mb-4">
+            안녕하세요, 켈빈입니다! 👋
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="text-xl text-gray-600 mb-8">
+            기술과 행복을 함께 나누는 블로그
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
+          <p className="text-gray-700 max-w-2xl mx-auto leading-relaxed mb-8">
+            풀스택 개발자로서 배운 기술들을 초보자도 이해할 수 있게 정리합니다.
+            명확함, 실용성, 그리고 행복함을 담아 이야기합니다.
+          </p>
+        </section>
+
+        {/* Latest Posts */}
+        <section className="mb-16">
+          <h2 className="text-3xl font-bold text-blue-900 mb-8">
+            최신 포스트
+          </h2>
+          {posts.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {posts.map((post) => (
+                <PostCard
+                  key={post.slug}
+                  title={post.title}
+                  date={post.date}
+                  slug={post.slug}
+                  excerpt={post.excerpt || post.content.substring(0, 100)}
+                  tags={post.tags}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-600 text-center py-8">
+              포스트가 없습니다. 첫 포스트를 작성해보세요!
+            </p>
+          )}
+        </section>
+
+        {/* Happy Banner */}
+        <HappyBanner
+          title="✨ 함께 성장해요!"
+          message="개발 과정의 모든 단계를 함께 공유하고 싶습니다"
+        />
+
+        {/* CTA Section */}
+        <section className="text-center mb-16">
+          <h2 className="text-2xl font-bold text-blue-900 mb-4">
+            더 많은 포스트 보기
+          </h2>
           <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            href="/blog"
+            className="inline-block bg-orange-500 text-white px-8 py-3 rounded-lg hover:bg-orange-600 transition"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
+            블로그로 이동 →
           </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+        </section>
       </main>
-    </div>
+      <Footer />
+    </>
   );
 }
