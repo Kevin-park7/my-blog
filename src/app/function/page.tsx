@@ -33,9 +33,9 @@ export default function FunctionPage() {
   return (
     <>
       <Header />
-      <main className="max-w-4xl mx-auto px-6 py-12">
+      <main className="max-w-4xl mx-auto px-6 py-12 mt-16">
         <div className="mb-10">
-          <h1 className="text-4xl font-bold text-blue-900 dark:text-gray-100 mb-2">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
             Function
           </h1>
           <p className="text-gray-600 dark:text-gray-400 text-lg">
@@ -43,7 +43,7 @@ export default function FunctionPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           {games.map((game) => (
             <GameCard
               key={game.href}

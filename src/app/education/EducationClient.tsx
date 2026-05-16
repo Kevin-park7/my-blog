@@ -78,13 +78,13 @@ export function EducationClient({ posts }: EducationClientProps) {
           placeholder="포스트 검색 (제목, 내용)..."
           value={searchTerm}
           onChange={(e) => handleSearchChange(e.target.value)}
-          className="w-full px-4 py-3 rounded-lg border-2 border-orange-200 dark:border-orange-800 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-orange-500 dark:focus:border-orange-500 transition-colors"
+          className="w-full px-4 py-3 rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-slate-950 text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:border-2 focus:border-gray-900 dark:focus:border-white transition-colors"
         />
       </div>
 
       {/* Active Filter Banner */}
       {hasActiveFilters && (
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-orange-50 dark:bg-orange-950 rounded-lg border border-orange-200 dark:border-orange-800 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 bg-gray-50 dark:bg-slate-900 rounded-lg border border-gray-200 dark:border-slate-800 mb-6">
           <div className="text-sm text-gray-700 dark:text-gray-300">
             <span className="font-medium">필터:</span>
             {selectedCategory && (
@@ -101,7 +101,7 @@ export function EducationClient({ posts }: EducationClientProps) {
           </div>
           <button
             onClick={clearFilters}
-            className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 dark:hover:bg-orange-700 transition-colors font-medium text-sm whitespace-nowrap"
+            className="px-4 py-2 bg-gray-900 text-white dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors font-medium text-sm whitespace-nowrap"
           >
             필터 초기화
           </button>
@@ -139,7 +139,7 @@ export function EducationClient({ posts }: EducationClientProps) {
               </p>
               <button
                 onClick={clearFilters}
-                className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 dark:hover:bg-orange-700 transition-colors font-medium"
+                className="px-4 py-2 bg-gray-900 text-white dark:bg-white dark:text-gray-900 rounded-lg hover:bg-gray-700 dark:hover:bg-gray-200 transition-colors font-medium"
               >
                 필터 초기화
               </button>

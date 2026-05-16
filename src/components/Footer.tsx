@@ -1,27 +1,37 @@
 'use client';
 
 export function Footer() {
-  const currentYear = new Date().getFullYear();
-
   return (
-    <footer className="bg-blue-900 dark:bg-gray-900 text-white py-12 mt-24">
-      <div className="max-w-4xl mx-auto px-6 text-center">
-        <p className="mb-2">
-          © {currentYear} 켈빈. All rights reserved.
-        </p>
-        <p className="text-gray-300 dark:text-gray-400 text-sm">
-          기술과 행복을 함께 나누는 블로그
-        </p>
-        <div className="flex justify-center gap-6 mt-6">
-          <a href="#" className="text-orange-400 dark:text-orange-300 hover:text-orange-300 dark:hover:text-orange-200 transition">
-            GitHub
-          </a>
-          <a href="#" className="text-orange-400 dark:text-orange-300 hover:text-orange-300 dark:hover:text-orange-200 transition">
-            Twitter
-          </a>
-          <a href="#" className="text-orange-400 dark:text-orange-300 hover:text-orange-300 dark:hover:text-orange-200 transition">
-            Email
-          </a>
+    <footer className="bg-white dark:bg-slate-950">
+      <div className="max-w-6xl mx-auto px-6 py-8 border-t border-gray-200 dark:border-slate-800">
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            © 2026 Kelvin. All rights reserved.
+          </p>
+          <div className="flex gap-4 text-sm">
+            <a
+              href="https://github.com/parkseongwon"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+            >
+              GitHub
+            </a>
+            <a
+              href="https://twitter.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+            >
+              Twitter
+            </a>
+            <a
+              href="mailto:seoonwon8503@gmail.com"
+              className="text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+            >
+              Email
+            </a>
+          </div>
         </div>
       </div>
     </footer>

@@ -23,13 +23,6 @@ const cardVariants = {
   },
 };
 
-const hoverVariants = {
-  hover: {
-    scale: 1.05,
-    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.1)',
-  },
-};
-
 export function PostCard({
   title,
   date,
@@ -48,38 +41,32 @@ export function PostCard({
       animate={isInView ? 'visible' : 'hidden'}
     >
       <Link href={`/blog/${slug}`}>
-        <motion.article
-          variants={hoverVariants}
-          whileHover="hover"
-          className="bg-white dark:bg-gray-800 rounded-2xl p-6 border-2 border-orange-200 dark:border-orange-800 transition-shadow duration-200 dark:hover:shadow-gray-700 cursor-pointer">
-        <div className="flex items-start justify-between mb-3">
-          <h3 className="text-xl font-semibold text-blue-900 dark:text-gray-100 flex-1">
+        <article className="bg-white dark:bg-gray-900 rounded-lg p-6 border border-gray-200 dark:border-slate-800 hover:border-gray-400 dark:hover:border-slate-700 transition-colors duration-200 cursor-pointer">
+          <h3 className="text-2xl font-semibold text-gray-900 dark:text-white mb-2">
             {title}
           </h3>
-          <span className="text-2xl">📝</span>
-        </div>
 
-        <p className="text-gray-600 dark:text-gray-400 text-sm mb-3">
-          {formatDate(date)}
-        </p>
+          <p className="text-sm text-gray-500 dark:text-gray-300 mb-3">
+            {formatDate(date)}
+          </p>
 
-        <p className="text-gray-700 dark:text-gray-300 line-clamp-2 mb-4">
-          {excerpt}
-        </p>
+          <p className="text-base text-gray-700 dark:text-gray-200 line-clamp-2 mb-4">
+            {excerpt}
+          </p>
 
-        {tags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {tags.map((tag) => (
-              <span
-                key={tag}
-                className="bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-200 text-xs px-2 py-1 rounded-full"
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-        )}
-        </motion.article>
+          {tags.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {tags.map((tag) => (
+                <span
+                  key={tag}
+                  className="inline-block bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 text-xs px-2 py-1 rounded"
+                >
+                  #{tag}
+                </span>
+              ))}
+            </div>
+          )}
+        </article>
       </Link>
     </motion.div>
   );

@@ -8,12 +8,12 @@ import { MDXRemote } from 'next-mdx-remote/rsc';
 
 const components = {
   h1: ({ children }: any) => (
-    <h1 className="text-4xl font-bold text-blue-900 dark:text-blue-200 mt-8 mb-4">
+    <h1 className="text-4xl font-bold text-gray-900 dark:text-white mt-8 mb-4">
       {children}
     </h1>
   ),
   h2: ({ children }: any) => (
-    <h2 className="text-3xl font-semibold text-orange-500 dark:text-orange-400 mt-8 mb-4">
+    <h2 className="text-3xl font-semibold text-gray-900 dark:text-white mt-8 mb-4">
       {children}
     </h2>
   ),
@@ -23,37 +23,37 @@ const components = {
     </h3>
   ),
   p: ({ children }: any) => (
-    <p className="text-gray-700 dark:text-gray-300 leading-relaxed mb-4">
+    <p className="text-gray-700 dark:text-gray-200 leading-relaxed mb-4">
       {children}
     </p>
   ),
   a: ({ href, children }: any) => (
-    <a href={href} className="text-orange-500 dark:text-orange-400 hover:underline">
+    <a href={href} className="text-gray-900 dark:text-white underline underline-offset-4 hover:text-gray-600 dark:hover:text-gray-300">
       {children}
     </a>
   ),
   ul: ({ children }: any) => (
-    <ul className="list-disc list-inside mb-4 space-y-2 text-gray-700 dark:text-gray-300">
+    <ul className="list-disc list-inside mb-4 space-y-2 text-gray-700 dark:text-gray-200">
       {children}
     </ul>
   ),
   ol: ({ children }: any) => (
-    <ol className="list-decimal list-inside mb-4 space-y-2 text-gray-700 dark:text-gray-300">
+    <ol className="list-decimal list-inside mb-4 space-y-2 text-gray-700 dark:text-gray-200">
       {children}
     </ol>
   ),
   code: ({ className, children }: any) => (
-    <code className={`${className} bg-gray-200 dark:bg-gray-800 dark:text-gray-100 px-1 py-0.5 rounded text-sm`}>
+    <code className={`${className} bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 px-1 py-0.5 rounded text-sm`}>
       {children}
     </code>
   ),
   pre: ({ children }: any) => (
-    <pre className="bg-gray-900 dark:bg-gray-950 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4 text-sm">
+    <pre className="bg-gray-900 dark:bg-slate-900 text-gray-100 p-4 rounded-lg overflow-x-auto mb-4 text-sm">
       {children}
     </pre>
   ),
   blockquote: ({ children }: any) => (
-    <blockquote className="border-l-4 border-orange-500 dark:border-orange-400 pl-4 italic text-gray-600 dark:text-gray-400 my-4">
+    <blockquote className="border-l-4 border-gray-300 dark:border-slate-600 pl-4 italic text-gray-600 dark:text-gray-400 my-4">
       {children}
     </blockquote>
   ),
@@ -125,20 +125,20 @@ export default async function BlogPostPage({
 
           {/* Header */}
           <header className="mb-8">
-            <h1 className="text-4xl font-bold text-blue-900 dark:text-blue-200 mb-4">
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
               {post.title}
             </h1>
             <div className="flex items-center justify-between mb-4">
-              <time className="text-gray-600 dark:text-gray-400">
+              <time className="text-gray-600 dark:text-gray-300">
                 {formatDate(post.date)}
               </time>
             </div>
             {post.tags.length > 0 && (
-              <div className="flex gap-2">
+              <div className="flex gap-2 flex-wrap">
                 {post.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="bg-orange-100 dark:bg-orange-900 text-orange-700 dark:text-orange-200 text-sm px-3 py-1 rounded-full"
+                    className="bg-gray-100 dark:bg-slate-800 text-gray-700 dark:text-gray-300 text-sm px-3 py-1 rounded-full"
                   >
                     #{tag}
                   </span>
@@ -153,9 +153,9 @@ export default async function BlogPostPage({
           </div>
 
           {/* Footer */}
-          <footer className="mt-12 pt-8 border-t-2 border-gray-200 dark:border-gray-700">
+          <footer className="mt-12 pt-8 border-t border-gray-200 dark:border-slate-800">
             <p className="text-gray-600 dark:text-gray-400 text-center">
-              이 포스트가 도움이 되셨나요? 피드백은 환영합니다! 💌
+              이 포스트가 도움이 되셨나요? 피드백은 환영합니다!
             </p>
           </footer>
         </article>

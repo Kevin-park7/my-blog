@@ -455,13 +455,13 @@ export default function QuizGamePage() {
       <Header />
       <main className="max-w-2xl mx-auto px-6 py-12">
         <div className="mb-8">
-          <a href="/function" className="text-orange-500 hover:text-orange-600 font-semibold text-sm">
+          <a href="/function" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-semibold text-sm">
             ← Back to Games
           </a>
-          <h1 className="text-4xl font-bold text-blue-900 dark:text-gray-100 mt-4 mb-2">
-            Tech Quiz
+          <h1 className="text-5xl font-bold text-gray-900 dark:text-white mt-4 mb-2">
+            💡 Tech Quiz
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">개발 지식을 퀴즈로 테스트해보세요.</p>
+          <p className="text-gray-700 dark:text-gray-200">개발 지식을 퀴즈로 테스트해보세요.</p>
         </div>
 
         {/* Category select phase */}
@@ -485,7 +485,7 @@ export default function QuizGamePage() {
             </div>
             <button
               onClick={handleStart}
-              className="w-full py-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors text-lg"
+              className="w-full py-4 bg-gray-900 dark:bg-white hover:opacity-90 text-white dark:text-gray-900 font-bold rounded-lg transition-opacity text-lg"
             >
               Start Quiz ({questions.length} Questions)
             </button>
@@ -561,7 +561,7 @@ export default function QuizGamePage() {
             <button
               onClick={handleNext}
               disabled={selected === null}
-              className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              className="w-full py-3 bg-gray-900 dark:bg-white hover:opacity-90 text-white dark:text-gray-900 font-bold rounded-lg transition-opacity disabled:opacity-40 disabled:cursor-not-allowed"
             >
               {currentIndex + 1 >= questions.length ? 'See Results' : 'Next Question →'}
             </button>
@@ -575,7 +575,7 @@ export default function QuizGamePage() {
               <div className="text-6xl mb-4">
                 {score >= 8 ? '🏆' : score >= 5 ? '👍' : '📚'}
               </div>
-              <h2 className="text-3xl font-bold text-blue-900 dark:text-gray-100 mb-2">
+              <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">
                 {score} / {questions.length}
               </h2>
               <p className="text-gray-500 dark:text-gray-400">
@@ -614,13 +614,13 @@ export default function QuizGamePage() {
             <div className="flex gap-3">
               <button
                 onClick={handleStart}
-                className="flex-1 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors"
+                className="flex-1 py-3 bg-gray-900 dark:bg-white hover:opacity-90 text-white dark:text-gray-900 font-bold rounded-lg transition-opacity"
               >
                 Try Again
               </button>
               <button
                 onClick={() => setPhase('select')}
-                className="flex-1 py-3 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-semibold rounded-xl transition-colors"
+                className="flex-1 py-3 border border-gray-300 dark:border-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-semibold rounded-lg transition-colors"
               >
                 Change Category
               </button>

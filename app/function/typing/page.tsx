@@ -124,13 +124,13 @@ export default function TypingGamePage() {
       <Header />
       <main className="max-w-3xl mx-auto px-6 py-12">
         <div className="mb-8">
-          <a href="/function" className="text-orange-500 hover:text-orange-600 font-semibold text-sm">
+          <a href="/function" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-semibold text-sm">
             ← Back to Games
           </a>
-          <h1 className="text-4xl font-bold text-blue-900 dark:text-gray-100 mt-4 mb-2">
-            Typing Speed Test
+          <h1 className="text-5xl font-bold text-gray-900 dark:text-white mt-4 mb-2">
+            ⌨️ Typing Speed Test
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">타이핑 속도와 정확도를 측정하세요.</p>
+          <p className="text-gray-700 dark:text-gray-200">타이핑 속도와 정확도를 측정하세요.</p>
         </div>
 
         {/* Text selector */}
@@ -151,7 +151,7 @@ export default function TypingGamePage() {
         </div>
 
         {/* Target text box */}
-        <div className="mb-4 p-4 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl font-mono text-sm leading-relaxed min-h-[64px] select-none">
+        <div className="mb-4 p-4 bg-gray-100 dark:bg-gray-950 border border-gray-300 dark:border-slate-700 rounded-lg font-mono text-sm leading-relaxed min-h-[64px] select-none">
           {renderTarget()}
         </div>
 
@@ -163,7 +163,7 @@ export default function TypingGamePage() {
           onChange={handleInputChange}
           disabled={status !== 'running'}
           placeholder={status === 'idle' ? 'Start 버튼을 눌러 시작하세요' : '여기에 타이핑하세요…'}
-          className="w-full border-2 border-gray-300 dark:border-gray-600 rounded-xl px-4 py-3 font-mono text-sm bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-200 focus:outline-none focus:border-orange-400 disabled:opacity-50 mb-6"
+          className="w-full border-2 border-gray-300 dark:border-slate-700 rounded-lg px-4 py-3 font-mono text-sm bg-white dark:bg-gray-950 text-gray-900 dark:text-gray-100 focus:outline-none focus:border-gray-600 dark:focus:border-slate-500 disabled:opacity-50 mb-6"
         />
 
         {/* Stats bar */}
@@ -217,7 +217,7 @@ export default function TypingGamePage() {
           <button
             onClick={handleStart}
             disabled={status === 'running'}
-            className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="px-6 py-2 bg-gray-900 dark:bg-white hover:opacity-90 text-white dark:text-gray-900 font-semibold rounded-lg transition-opacity disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Start
           </button>
@@ -236,7 +236,7 @@ export default function TypingGamePage() {
               <div className="text-5xl mb-4">
                 {results.wpm >= 60 ? '🔥' : results.wpm >= 40 ? '✅' : '💪'}
               </div>
-              <h2 className="text-2xl font-bold text-blue-900 dark:text-gray-100 mb-6">Results</h2>
+              <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6">Results</h2>
               <div className="space-y-3 mb-8">
                 <div className="flex justify-between items-center">
                   <span className="text-gray-500 dark:text-gray-400">WPM</span>
@@ -253,13 +253,13 @@ export default function TypingGamePage() {
               </div>
               <button
                 onClick={handleStart}
-                className="w-full py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors"
+                className="w-full py-3 bg-gray-900 dark:bg-white hover:opacity-90 text-white dark:text-gray-900 font-bold rounded-lg transition-opacity"
               >
                 Try Again
               </button>
               <button
                 onClick={handleReset}
-                className="w-full py-3 mt-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-semibold rounded-xl transition-colors"
+                className="w-full py-3 mt-2 border border-gray-300 dark:border-slate-700 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 font-semibold rounded-lg transition-colors"
               >
                 Close
               </button>

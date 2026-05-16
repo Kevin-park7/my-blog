@@ -6,25 +6,25 @@ const games = [
   {
     icon: '⌨️',
     title: 'Typing Game',
-    description: '코딩 키워드를 빠르게 타이핑하며 타자 실력을 키워보세요.',
+    description: 'Test your typing speed with coding keywords and phrases.',
     href: '/function/typing',
   },
   {
     icon: '💡',
     title: 'Tech Quiz',
-    description: '개발 지식을 퀴즈로 테스트해보세요. CS 개념부터 실전 문제까지.',
+    description: 'Answer technical questions on JavaScript, TypeScript, Python, and more.',
     href: '/function/quiz',
   },
   {
     icon: '🃏',
     title: 'Memory Game',
-    description: '기술 용어 카드를 짝지어 기억력과 집중력을 단련하세요.',
+    description: 'Match pairs of cards to train your memory and focus.',
     href: '/function/memory',
   },
   {
     icon: '🐍',
     title: 'Snake Game',
-    description: '클래식 스네이크 게임으로 잠깐 머리를 식히세요.',
+    description: 'Classic snake gameplay. Take a quick break and have fun.',
     href: '/function/snake',
   },
 ];
@@ -33,17 +33,17 @@ export default function FunctionPage() {
   return (
     <>
       <Header />
-      <main className="max-w-4xl mx-auto px-6 py-12">
+      <main className="max-w-6xl mx-auto px-6 py-12">
         <div className="mb-10">
-          <h1 className="text-4xl font-bold text-blue-900 dark:text-gray-100 mb-2">
+          <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-4">
             Function
           </h1>
-          <p className="text-gray-600 dark:text-gray-400 text-lg">
-            코딩 실력을 키우는 인터랙티브 게임 모음
+          <p className="text-3xl text-gray-600 dark:text-gray-300">
+            Learn through Interactive Games
           </p>
         </div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {games.map((game) => (
             <GameCard
               key={game.href}

@@ -37,7 +37,7 @@ interface CategoryGridProps {
 
 export function CategoryGrid({ posts, selectedCategory, onSelectCategory }: CategoryGridProps) {
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 mb-8">
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4 mb-10">
       {CATEGORIES.map((category) => {
         const count = getPostCountForCategory(posts, category);
         const isSelected = selectedCategory === category.name;
@@ -46,22 +46,24 @@ export function CategoryGrid({ posts, selectedCategory, onSelectCategory }: Cate
           <button
             key={category.name}
             onClick={() => onSelectCategory(isSelected ? null : category.name)}
-            className={`flex flex-col items-center justify-center p-4 rounded-xl border-2 transition-all duration-200 cursor-pointer ${
+            className={`flex flex-col items-center justify-center p-6 rounded-lg border transition-colors duration-200 cursor-pointer text-center ${
               isSelected
-                ? 'bg-orange-500 border-orange-500 text-white dark:bg-orange-600 dark:border-orange-600'
-                : 'bg-white dark:bg-gray-800 border-orange-200 dark:border-orange-800 text-gray-800 dark:text-gray-200 hover:border-orange-400 dark:hover:border-orange-600 hover:bg-orange-50 dark:hover:bg-gray-700'
+                ? 'bg-gray-900 border-gray-900 text-white dark:bg-white dark:border-white dark:text-gray-900'
+                : 'bg-white dark:bg-gray-900 border-gray-200 dark:border-slate-800 text-gray-900 dark:text-white hover:border-gray-400 dark:hover:border-slate-700 hover:bg-gray-50 dark:hover:bg-gray-800'
             }`}
           >
-            <span className="font-semibold text-sm text-center leading-tight mb-1">
+            <h3 className="text-base font-semibold leading-tight mb-1">
               {category.name}
-            </span>
-            <span
-              className={`text-xs font-medium ${
-                isSelected ? 'text-orange-100' : 'text-orange-500 dark:text-orange-400'
+            </h3>
+            <p
+              className={`text-sm font-medium ${
+                isSelected
+                  ? 'text-gray-300 dark:text-gray-600'
+                  : 'text-gray-600 dark:text-gray-400'
               }`}
             >
-              {count}개
-            </span>
+              {count} posts
+            </p>
           </button>
         );
       })}

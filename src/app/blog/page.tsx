@@ -9,8 +9,8 @@ export default function BlogPage() {
   return (
     <>
       <Header />
-      <main className="max-w-4xl mx-auto px-6 py-12">
-        <h1 className="text-4xl font-bold text-blue-900 dark:text-gray-100 mb-8">
+      <main className="max-w-4xl mx-auto px-6 py-12 mt-16">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-8">
           모든 포스트
         </h1>
 

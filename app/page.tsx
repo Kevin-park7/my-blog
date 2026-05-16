@@ -11,10 +11,8 @@ export default function Home() {
   return (
     <>
       <Header />
+      <HeroSection />
       <main className="max-w-4xl mx-auto px-6 py-12">
-        {/* Hero Section */}
-        <HeroSection />
-
         {/* Latest Posts */}
         <section className="mb-16">
           <h2 className="text-3xl font-bold text-blue-900 dark:text-gray-100 mb-8">

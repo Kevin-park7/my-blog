@@ -1,6 +1,6 @@
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
-import { PostGrid } from '@/components/PostGrid';
+import { SearchFilter } from '@/components/SearchFilter';
 import { getAllPosts } from '@/lib/posts';
 
 export default function BlogPage() {
@@ -9,23 +9,17 @@ export default function BlogPage() {
   return (
     <>
       <Header />
-      <main className="max-w-4xl mx-auto px-6 py-12">
-        <h1 className="text-4xl font-bold text-blue-900 dark:text-gray-100 mb-8">
-          모든 포스트
-        </h1>
+      <main className="mt-16">
+        <div className="max-w-6xl mx-auto px-6 py-12">
+          <h1 className="text-5xl font-bold text-gray-900 dark:text-white mb-2">
+            Blog
+          </h1>
+          <p className="text-3xl text-gray-600 dark:text-gray-300 mb-8">
+            All Posts
+          </p>
 
-        {posts.length > 0 ? (
-          <PostGrid posts={posts} />
-        ) : (
-          <div className="text-center py-12">
-            <p className="text-gray-600 text-lg mb-4">
-              아직 포스트가 없습니다.
-            </p>
-            <p className="text-gray-500">
-              첫 포스트를 작성해보세요! 📝
-            </p>
-          </div>
-        )}
+          <SearchFilter posts={posts} />
+        </div>
       </main>
       <Footer />
     </>

@@ -255,13 +255,13 @@ export default function SnakeGamePage() {
       <Header />
       <main className="max-w-2xl mx-auto px-6 py-12">
         <div className="mb-8">
-          <a href="/function" className="text-orange-500 hover:text-orange-600 font-semibold text-sm">
+          <a href="/function" className="text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white font-semibold text-sm">
             ← Back to Games
           </a>
-          <h1 className="text-4xl font-bold text-blue-900 dark:text-gray-100 mt-4 mb-2">
-            Snake Game
+          <h1 className="text-5xl font-bold text-gray-900 dark:text-white mt-4 mb-2">
+            🐍 Snake Game
           </h1>
-          <p className="text-gray-600 dark:text-gray-400">Arrow keys or WASD to control. Space to pause.</p>
+          <p className="text-gray-700 dark:text-gray-200">Arrow keys or WASD to control. Space to pause.</p>
         </div>
 
         {/* Score bar */}
@@ -299,7 +299,7 @@ export default function SnakeGamePage() {
                   <p className="text-white font-bold text-lg mb-4">Press Start or any arrow key</p>
                   <button
                     onClick={startGame}
-                    className="px-8 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors"
+                    className="px-8 py-3 bg-gray-900 dark:bg-white hover:opacity-90 text-white dark:text-gray-900 font-bold rounded-lg transition-opacity"
                   >
                     Start Game
                   </button>
@@ -311,7 +311,7 @@ export default function SnakeGamePage() {
                   <p className="text-white font-bold text-lg mb-4">Paused</p>
                   <button
                     onClick={togglePause}
-                    className="px-8 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors"
+                    className="px-8 py-3 bg-gray-900 dark:bg-white hover:opacity-90 text-white dark:text-gray-900 font-bold rounded-lg transition-opacity"
                   >
                     Resume
                   </button>
@@ -327,7 +327,7 @@ export default function SnakeGamePage() {
                   )}
                   <button
                     onClick={startGame}
-                    className="px-8 py-3 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl transition-colors"
+                    className="px-8 py-3 bg-gray-900 dark:bg-white hover:opacity-90 text-white dark:text-gray-900 font-bold rounded-lg transition-opacity"
                   >
                     Play Again
                   </button>
@@ -380,7 +380,7 @@ export default function SnakeGamePage() {
         <div className="mt-4 flex gap-3 justify-center">
           <button
             onClick={startGame}
-            className="px-6 py-2 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition-colors"
+            className="px-6 py-2 bg-gray-900 dark:bg-white hover:opacity-90 text-white dark:text-gray-900 font-semibold rounded-lg transition-opacity"
           >
             {status === 'idle' ? 'Start' : 'Restart'}
           </button>

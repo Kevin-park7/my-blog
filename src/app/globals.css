@@ -13,33 +13,16 @@ html {
 }
 
 body {
-  background-color: #FFFAF0;
-  color: #1F2937;
+  background-color: #ffffff;
+  color: #111827;
   font-family: system-ui, -apple-system, sans-serif;
 }
 
-/* 헤딩 스타일 */
-h1 {
-  font-size: 36px;
-  font-weight: 700;
-  color: #111E3F;
-  margin-bottom: 24px;
-}
-
-h2 {
-  font-size: 28px;
-  font-weight: 600;
-  color: #FF9500;
-  margin-bottom: 20px;
-  margin-top: 32px;
-}
-
-h3 {
-  font-size: 24px;
-  font-weight: 600;
-  color: #1F2937;
-  margin-bottom: 16px;
-  margin-top: 24px;
+@media (prefers-color-scheme: dark) {
+  body {
+    background-color: #020617;
+    color: #f1f5f9;
+  }
 }
 
 p {
@@ -56,7 +39,7 @@ code {
 }
 
 pre {
-  background-color: #1F2937;
+  background-color: #111827;
   color: #f0f0f0;
   padding: 16px;
   border-radius: 8px;
@@ -70,21 +53,9 @@ pre code {
   padding: 0;
 }
 
-a {
-  color: #FF9500;
-  text-decoration: none;
-  border-bottom: 1px solid transparent;
-  transition: border-color 0.2s;
-}
-
-a:hover {
-  border-bottom-color: #FF9500;
-}
-
 /* 이미지 반응형 */
 img {
   max-width: 100%;
   height: auto;
-  margin: 24px 0;
   border-radius: 8px;
 }
