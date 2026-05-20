@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { getPosts, getPostById } from '@/lib/posts';
+import { getPostById } from '@/lib/posts';
 import { notFound } from 'next/navigation';
 
 export default function PostPage({ params }: { params: { id: string } }) {
