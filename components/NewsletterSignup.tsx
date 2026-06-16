@@ -5,20 +5,34 @@ import { useState } from 'react';
 export default function NewsletterSignup() {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       setError('유효한 이메일 주소를 입력해주세요.');
       return;
     }
     setError('');
-    const existing = JSON.parse(localStorage.getItem('newsletter_emails') || '[]');
-    if (!existing.includes(email)) {
-      localStorage.setItem('newsletter_emails', JSON.stringify([...existing, email]));
+    setLoading(true);
+    try {
+      const res = await fetch('/api/newsletter', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || '오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+        return;
+      }
+      setSubmitted(true);
+    } catch {
+      setError('오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+    } finally {
+      setLoading(false);
     }
-    setSubmitted(true);
   };
 
   if (submitted) {
@@ -46,9 +60,10 @@ export default function NewsletterSignup() {
         />
         <button
           type="submit"
-          className="px-5 py-2 bg-[var(--accent)] text-[var(--paper)] font-semibold text-sm rounded-md hover:bg-[var(--accent-2)] transition-colors whitespace-nowrap"
+          disabled={loading}
+          className="px-5 py-2 bg-[var(--accent)] text-[var(--paper)] font-semibold text-sm rounded-md hover:bg-[var(--accent-2)] transition-colors whitespace-nowrap disabled:opacity-60 disabled:cursor-not-allowed"
         >
-          구독하기
+          {loading ? '처리 중...' : '구독하기'}
         </button>
       </form>
       {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
