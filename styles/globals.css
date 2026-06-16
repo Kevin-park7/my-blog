@@ -622,6 +622,130 @@ html.dark .game-card:hover {
   transform: translateX(4px);
 }
 
+/* ─────────── Function Dashboard ─────────── */
+
+.fn-head {
+  margin-bottom: 8px;
+}
+
+.fn-stamp {
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 12px;
+}
+
+.fn-title {
+  font-size: 2.8rem;
+  font-weight: 700;
+  line-height: 1.1;
+  margin-bottom: 12px;
+  color: var(--ink);
+}
+
+.fn-sub {
+  font-size: 1rem;
+  color: var(--muted);
+  margin-bottom: 0;
+}
+
+.fn-section {
+  margin-top: 40px;
+}
+
+.fn-section-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 24px;
+}
+
+.fn-games-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+}
+
+@media (min-width: 640px) {
+  .fn-games-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .fn-games-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.game-card-link {
+  text-decoration: none;
+  color: inherit;
+  display: block;
+}
+
+.fn-game-card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 24px;
+  border: 1px solid var(--rule, rgba(90, 75, 50, 0.2));
+  border-radius: 8px;
+  background: var(--paper);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+}
+
+.fn-game-card:hover {
+  border-color: var(--accent);
+  background: var(--paper-2);
+  transform: translateY(-2px);
+}
+
+.fn-game-icon {
+  font-size: 2rem;
+  line-height: 1;
+}
+
+.fn-game-body {
+  flex: 1;
+}
+
+.fn-game-name {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--ink);
+  margin-bottom: 2px;
+}
+
+.fn-game-ko {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+
+.fn-game-desc {
+  font-size: 0.9rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.fn-game-play {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--accent);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.fn-game-card:hover .arr {
+  transform: translateX(4px);
+}
+
 .rule {
   height: 1px;
   background: linear-gradient(to right, transparent, var(--ink-2), transparent);
