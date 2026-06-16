@@ -1,26 +1,10 @@
 'use client';
 
 import Link from 'next/link';
-import { useState } from 'react';
 
 export default function Home() {
-  const [dark, setDark] = useState(false);
-
   return (
     <div className="min-h-screen bg-[var(--paper)] text-[var(--ink)]">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-[var(--rule)] bg-[var(--paper-2)] backdrop-blur">
-        <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
-          <h1 className="text-xl font-bold">Good Thinking</h1>
-          <button
-            onClick={() => setDark(!dark)}
-            className="p-2 hover:bg-[var(--paper)]"
-          >
-            {dark ? '☀️' : '🌙'}
-          </button>
-        </div>
-      </header>
-
       {/* Hero */}
       <section className="py-24 text-center border-b border-[var(--rule)]">
         <div className="max-w-3xl mx-auto px-6">

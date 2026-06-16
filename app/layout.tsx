@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Newsreader, JetBrains_Mono, Inter } from 'next/font/google';
+import Navigation from '@/components/Navigation';
 import '../styles/globals.css';
 
 const newsreader = Newsreader({
@@ -33,6 +34,7 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning className={`${newsreader.variable} ${jetbrainsMono.variable} ${inter.variable}`}>
       <body className="bg-[var(--paper)] text-[var(--ink)]">
+        <Navigation />
         {children}
       </body>
     </html>
