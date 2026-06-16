@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { getPosts } from '@/lib/posts';
+import NewsletterSignup from '@/components/NewsletterSignup';
 
 export default function BlogPage() {
   const posts = getPosts();
@@ -24,6 +25,10 @@ export default function BlogPage() {
               <p className="text-[var(--ink)]">{post.excerpt}</p>
             </Link>
           ))}
+        </div>
+
+        <div className="mt-16 pt-8 border-t border-[var(--rule)]">
+          <NewsletterSignup />
         </div>
       </div>
     </div>

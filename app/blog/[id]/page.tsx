@@ -1,6 +1,11 @@
 import Link from 'next/link';
 import { getPostById } from '@/lib/posts';
 import { notFound } from 'next/navigation';
+import ShareButtons from '@/components/ShareButtons';
+import CommentsSection from '@/components/CommentsSection';
+import RelatedPosts from '@/components/RelatedPosts';
+
+const SITE_URL = 'https://my-blog-pied-nu.vercel.app';
 
 export default function PostPage({ params }: { params: { id: string } }) {
   const post = getPostById(params.id);
@@ -9,15 +14,17 @@ export default function PostPage({ params }: { params: { id: string } }) {
     notFound();
   }
 
+  const postUrl = `${SITE_URL}/blog/${post.id}`;
+
   return (
     <div className="min-h-screen bg-[var(--paper)] text-[var(--ink)]">
       <div className="max-w-3xl mx-auto px-6 py-12">
         <Link href="/blog" className="text-[var(--accent)] hover:underline mb-8 inline-block">← Back</Link>
-        
+
         <article>
           <h1 className="text-5xl font-bold mb-4">{post.title}</h1>
           <p className="text-xl text-[var(--muted)] mb-8">{post.subtitle}</p>
-          
+
           <div className="flex gap-4 text-sm text-[var(--muted)] mb-12">
             <time>{post.date}</time>
             <span>·</span>
@@ -33,7 +40,12 @@ export default function PostPage({ params }: { params: { id: string } }) {
               return null;
             })}
           </div>
+
+          <ShareButtons title={post.title} postUrl={postUrl} />
         </article>
+
+        <CommentsSection postId={post.id} />
+        <RelatedPosts currentPostId={post.id} tags={post.tags} />
       </div>
     </div>
   );
