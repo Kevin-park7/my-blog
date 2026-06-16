@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import SearchBar from '@/components/SearchBar';
+import SponsorButton from '@/components/SponsorButton';
 import ThemeToggle from '@/components/ThemeToggle';
 
 const navLinks = [
@@ -38,6 +39,7 @@ export default function Navigation() {
             ))}
           </nav>
           <SearchBar />
+          <SponsorButton />
           <ThemeToggle />
         </div>
       </div>
