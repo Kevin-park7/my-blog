@@ -6,6 +6,10 @@ const NewsletterSignup = dynamic(() => import('@/components/NewsletterSignup'), 
   ssr: false,
 });
 
+const TrendingPosts = dynamic(() => import('@/components/TrendingPosts'), {
+  ssr: false,
+});
+
 export default function Home() {
   return (
     <div className="min-h-screen bg-[var(--paper)] text-[var(--ink)]">
@@ -79,10 +83,17 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Newsletter */}
+      {/* Trending + Newsletter */}
       <section className="py-16 border-b border-[var(--rule)]">
-        <div className="max-w-xl mx-auto px-6">
-          <NewsletterSignup />
+        <div className="max-w-4xl mx-auto px-6">
+          <div className="flex flex-col md:flex-row gap-8">
+            <div className="flex-1">
+              <NewsletterSignup />
+            </div>
+            <div className="md:w-64">
+              <TrendingPosts />
+            </div>
+          </div>
         </div>
       </section>
 

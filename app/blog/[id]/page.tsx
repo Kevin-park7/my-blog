@@ -11,6 +11,11 @@ import RecentPosts from '@/components/RecentPosts';
 import SeriesPosts from '@/components/SeriesPosts';
 import RecentPostsTracker from '@/components/RecentPostsTracker';
 import CommentCount from '@/components/CommentCount';
+import dynamic from 'next/dynamic';
+
+const PostStatsChart = dynamic(() => import('@/components/PostStatsChart'), { ssr: false });
+const TTSButton = dynamic(() => import('@/components/TTSButton'), { ssr: false });
+const ReadingProgress = dynamic(() => import('@/components/ReadingProgress'), { ssr: false });
 
 const SITE_URL = 'https://my-blog-pied-nu.vercel.app';
 
@@ -23,8 +28,14 @@ export default function PostPage({ params }: { params: { id: string } }) {
 
   const postUrl = `${SITE_URL}/blog/${post.id}`;
 
+  const postText = post.body
+    .filter(b => b.type === 'p' || b.type === 'h2' || b.type === 'quote')
+    .map(b => b.text || '')
+    .join(' ');
+
   return (
     <div className="min-h-screen bg-[var(--paper)] text-[var(--ink)]">
+      <ReadingProgress readMin={post.readMin} />
       <div className="max-w-3xl mx-auto px-6 py-12">
         <Link href="/blog" className="text-[var(--accent)] hover:underline mb-8 inline-block">← Back</Link>
 
@@ -32,7 +43,7 @@ export default function PostPage({ params }: { params: { id: string } }) {
           <h1 className="text-5xl font-bold mb-4">{post.title}</h1>
           <p className="text-xl text-[var(--muted)] mb-8">{post.subtitle}</p>
 
-          <div className="flex items-center gap-4 text-sm text-[var(--muted)] mb-6">
+          <div className="flex flex-wrap items-center gap-3 text-sm text-[var(--muted)] mb-6">
             <time>{post.date}</time>
             <span>·</span>
             <span>{post.readMin} min</span>
@@ -40,6 +51,7 @@ export default function PostPage({ params }: { params: { id: string } }) {
             <CommentCount postId={post.id} />
             <LikeButton postId={post.id} />
             <SavedButton postId={post.id} />
+            <TTSButton text={postText} />
           </div>
 
           {post.series && (
@@ -68,6 +80,7 @@ export default function PostPage({ params }: { params: { id: string } }) {
           </div>
 
           <ShareButtons title={post.title} postUrl={postUrl} />
+          <PostStatsChart postId={post.id} />
         </article>
 
         <RecentPostsTracker postId={post.id} title={post.title} />
