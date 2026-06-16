@@ -1,0 +1,21 @@
+name: Deployment Notification
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Get commit info
+        id: commit
+        run: echo "COMMIT_MSG=$(git log --oneline -1)" >> $GITHUB_OUTPUT
+
+      - name: Log deployment
+        run: |
+          echo "✅ Deployed: ${{ steps.commit.outputs.COMMIT_MSG }}"
+          echo "🔗 https://my-blog-pied-nu.vercel.app"
