@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import ShareButtons from '@/components/ShareButtons';
 import CommentsSection from '@/components/CommentsSection';
 import RelatedPosts from '@/components/RelatedPosts';
+import LikeButton from '@/components/LikeButton';
 
 const SITE_URL = 'https://my-blog-pied-nu.vercel.app';
 
@@ -25,10 +26,11 @@ export default function PostPage({ params }: { params: { id: string } }) {
           <h1 className="text-5xl font-bold mb-4">{post.title}</h1>
           <p className="text-xl text-[var(--muted)] mb-8">{post.subtitle}</p>
 
-          <div className="flex gap-4 text-sm text-[var(--muted)] mb-12">
+          <div className="flex items-center gap-4 text-sm text-[var(--muted)] mb-12">
             <time>{post.date}</time>
             <span>·</span>
             <span>{post.readMin} min</span>
+            <LikeButton postId={post.id} />
           </div>
 
           <div className="space-y-6 prose prose-invert">
