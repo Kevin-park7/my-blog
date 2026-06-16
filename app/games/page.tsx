@@ -8,6 +8,8 @@ const GAMES = [
   { id: 'snake', name: 'Snake', ko: '스네이크', tag: 'Arcade', desc: '뱀을 키워라. 자기 꼬리만 안 물면 된다.', minutes: '5 min', diff: '★★' },
   { id: 'memory', name: 'Memory', ko: '메모리 매치', tag: 'Puzzle', desc: '카드를 뒤집어 짝을 찾는 고전 두뇌 게임.', diff: '★★', minutes: '3 min' },
   { id: '2048', name: '2048', ko: '이공사팔', tag: 'Puzzle', desc: '같은 숫자를 합쳐 2048을 만들어라.', diff: '★★★', minutes: '10 min' },
+  { id: 'typing', name: 'Typing', ko: '타이핑', tag: 'Skill', desc: '코드를 빠르고 정확하게 타이핑하라. WPM으로 실력을 측정.', diff: '★★', minutes: '1 min' },
+  { id: 'quiz', name: 'Tech Quiz', ko: '기술 퀴즈', tag: 'Quiz', desc: 'JS · TS · Python 10문제. 개발 지식을 점검하라.', diff: '★★', minutes: '5 min' },
 ];
 
 const TTT_LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
@@ -429,6 +431,345 @@ function G2048() {
   );
 }
 
+// ─────────── Typing Game ───────────
+const TYPING_TEXTS = [
+  `const greeting = "Hello, world!";`,
+  `function add(a, b) { return a + b; }`,
+  `const promise = new Promise((resolve) => resolve());`,
+  `const arr = [1, 2, 3].map(x => x * 2);`,
+  `async function fetchData(url) { return await fetch(url); }`,
+  `const obj = { name: "Kelvin", role: "developer" };`,
+  `for (let i = 0; i < 10; i++) { console.log(i); }`,
+  `const sum = (nums) => nums.reduce((a, b) => a + b, 0);`,
+];
+
+function TypingGame() {
+  const [textIndex, setTextIndex] = useState(() => Math.floor(Math.random() * TYPING_TEXTS.length));
+  const [userInput, setUserInput] = useState('');
+  const [timeLeft, setTimeLeft] = useState(60);
+  const [duration, setDuration] = useState(60);
+  const [isActive, setIsActive] = useState(false);
+  const [isDone, setIsDone] = useState(false);
+  const [results, setResults] = useState<{ wpm: number; accuracy: number; timeTaken: number } | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const startTimeRef = useRef<number>(0);
+
+  const currentText = TYPING_TEXTS[textIndex];
+
+  const computeResults = useCallback((input: string, elapsed: number) => {
+    const totalChars = currentText.length;
+    const correctChars = input.split('').filter((ch, i) => ch === currentText[i]).length;
+    const accuracy = totalChars > 0 ? Math.round((correctChars / totalChars) * 100) : 0;
+    const minutes = elapsed / 60;
+    const wpm = minutes > 0 ? Math.round((input.length / 5) / minutes) : 0;
+    return { wpm, accuracy, timeTaken: elapsed };
+  }, [currentText]);
+
+  useEffect(() => {
+    if (!isActive || isDone) return;
+    const id = setInterval(() => {
+      setTimeLeft(t => {
+        if (t <= 1) {
+          clearInterval(id);
+          const elapsed = duration - (t - 1);
+          setResults(computeResults(userInput, elapsed));
+          setIsDone(true);
+          setIsActive(false);
+          return 0;
+        }
+        return t - 1;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [isActive, isDone, duration, userInput, computeResults]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const val = e.target.value;
+    if (!isActive && val.length === 1) {
+      setIsActive(true);
+      startTimeRef.current = Date.now();
+    }
+    if (isDone) return;
+    setUserInput(val);
+    if (val === currentText) {
+      const elapsed = Math.round((Date.now() - startTimeRef.current) / 1000) || 1;
+      setResults(computeResults(val, elapsed));
+      setIsDone(true);
+      setIsActive(false);
+    }
+  };
+
+  const reset = () => {
+    setTextIndex(Math.floor(Math.random() * TYPING_TEXTS.length));
+    setUserInput('');
+    setTimeLeft(duration);
+    setIsActive(false);
+    setIsDone(false);
+    setResults(null);
+    setTimeout(() => inputRef.current?.focus(), 50);
+  };
+
+  const setDurationAndReset = (d: number) => {
+    setDuration(d);
+    setTimeLeft(d);
+    setUserInput('');
+    setIsActive(false);
+    setIsDone(false);
+    setResults(null);
+    setTextIndex(Math.floor(Math.random() * TYPING_TEXTS.length));
+  };
+
+  return (
+    <div className="typing-game">
+      <div className="typing-hud">
+        <div className="typing-timer">{timeLeft}s</div>
+        <div className="typing-duration-btns">
+          <button className={`game-btn ghost typing-dur-btn${duration === 30 ? ' active' : ''}`} onClick={() => setDurationAndReset(30)} disabled={isActive}>30s</button>
+          <button className={`game-btn ghost typing-dur-btn${duration === 60 ? ' active' : ''}`} onClick={() => setDurationAndReset(60)} disabled={isActive}>60s</button>
+        </div>
+      </div>
+
+      <div className="typing-text-display">
+        {currentText.split('').map((ch, i) => {
+          let cls = 'typing-char';
+          if (i < userInput.length) cls += userInput[i] === ch ? ' correct' : ' wrong';
+          else if (i === userInput.length) cls += ' cursor';
+          return <span key={i} className={cls}>{ch}</span>;
+        })}
+      </div>
+
+      <input
+        ref={inputRef}
+        className="typing-input"
+        type="text"
+        value={userInput}
+        onChange={handleChange}
+        disabled={isDone}
+        placeholder={isActive ? '' : '여기에 타이핑…'}
+        autoComplete="off"
+        autoCorrect="off"
+        autoCapitalize="off"
+        spellCheck={false}
+      />
+
+      {results && (
+        <div className="typing-results">
+          <div className="typing-result-row">
+            <div className="typing-stat">
+              <div className="typing-stat-value">{results.wpm}</div>
+              <div className="typing-stat-label">WPM</div>
+            </div>
+            <div className="typing-stat">
+              <div className="typing-stat-value">{results.accuracy}%</div>
+              <div className="typing-stat-label">Accuracy</div>
+            </div>
+            <div className="typing-stat">
+              <div className="typing-stat-value">{results.timeTaken}s</div>
+              <div className="typing-stat-label">Time</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <button className="game-btn" onClick={reset}>{isDone ? 'Play again' : 'New text'}</button>
+    </div>
+  );
+}
+
+// ─────────── Tech Quiz Game ───────────
+const QUIZ_QUESTIONS = [
+  {
+    question: "What does the following log?\n\nfunction makeCounter() {\n  let count = 0;\n  return () => ++count;\n}\nconst c = makeCounter();\nc(); c();\nconsole.log(c());",
+    options: ["1", "2", "3", "undefined"],
+    correct: 2,
+    explanation: "makeCounter()는 클로저를 반환합니다. count는 호출마다 증가하므로 세 번째 호출 결과는 3입니다.",
+  },
+  {
+    question: "TypeScript에서 `unknown`과 `any`의 차이점은?",
+    options: [
+      "unknown은 any의 별칭이다",
+      "unknown 타입 값은 타입 좁히기 없이 직접 사용할 수 없다",
+      "unknown은 오직 함수 반환 타입에만 쓰인다",
+      "차이가 없다",
+    ],
+    correct: 1,
+    explanation: "`unknown`은 타입 안전한 `any`입니다. 사용 전에 typeof/instanceof 등으로 타입을 좁혀야 합니다.",
+  },
+  {
+    question: "Python에서 다음 리스트 컴프리헨션의 결과는?\n\n[x**2 for x in range(5) if x % 2 == 0]",
+    options: ["[0, 4, 16]", "[1, 9, 25]", "[0, 1, 4, 9, 16]", "[4, 16]"],
+    correct: 0,
+    explanation: "range(5)는 0~4. 짝수는 0, 2, 4이며 제곱하면 [0, 4, 16]입니다.",
+  },
+  {
+    question: "다음 async/await 코드의 출력 순서는?\n\nasync function main() {\n  console.log('A');\n  await Promise.resolve();\n  console.log('B');\n}\nmain();\nconsole.log('C');",
+    options: ["A B C", "A C B", "C A B", "B A C"],
+    correct: 1,
+    explanation: "await는 microtask queue에 나머지 실행을 넣습니다. 동기 코드 'C'가 먼저 출력된 후 'B'가 실행됩니다.",
+  },
+  {
+    question: "TypeScript Generic에서 `T extends string`의 의미는?",
+    options: [
+      "T는 반드시 string 클래스를 상속해야 한다",
+      "T는 string 타입에 할당 가능한 타입이어야 한다",
+      "T의 기본값이 string이다",
+      "T를 string으로 캐스팅한다",
+    ],
+    correct: 1,
+    explanation: "`extends` 제약은 T가 string에 할당 가능해야 함을 의미합니다. string 리터럴 타입도 포함됩니다.",
+  },
+  {
+    question: "Python 데코레이터 `@staticmethod`의 역할은?",
+    options: [
+      "클래스 인스턴스 없이 호출할 수 있는 메서드를 정의한다",
+      "메서드를 불변(immutable)으로 만든다",
+      "메서드를 private으로 만든다",
+      "클래스 변수에 접근하는 메서드를 정의한다",
+    ],
+    correct: 0,
+    explanation: "`@staticmethod`는 self나 cls를 받지 않으며, 클래스나 인스턴스 없이 호출 가능한 유틸리티 메서드를 만듭니다.",
+  },
+  {
+    question: "JavaScript spread 연산자에서 다음의 결과는?\n\nconst a = [1, 2];\nconst b = [3, 4];\nconsole.log([...a, ...b, 5]);",
+    options: ["[[1,2],[3,4],5]", "[1,2,3,4,5]", "[1,2,[3,4],5]", "TypeError"],
+    correct: 1,
+    explanation: "spread 연산자(`...`)는 iterable을 펼칩니다. 두 배열이 순서대로 합쳐져 [1,2,3,4,5]가 됩니다.",
+  },
+  {
+    question: "TypeScript `interface`와 `type alias`의 차이점으로 옳은 것은?",
+    options: [
+      "interface는 원시 타입을 정의할 수 있다",
+      "type alias는 declaration merging이 가능하다",
+      "interface는 extends로 확장 가능하고, declaration merging을 지원한다",
+      "차이가 없다",
+    ],
+    correct: 2,
+    explanation: "interface는 같은 이름으로 여러 번 선언하면 자동 병합(declaration merging)됩니다. type alias는 재선언이 불가합니다.",
+  },
+  {
+    question: "JavaScript Promise.all([p1, p2, p3])의 동작은?",
+    options: [
+      "가장 먼저 완료된 프로미스 결과만 반환한다",
+      "모든 프로미스가 resolve되면 결과 배열을 반환한다. 하나라도 reject되면 즉시 reject된다",
+      "각 프로미스를 순차적으로 실행한다",
+      "모든 프로미스가 settle될 때까지 기다린 후 결과를 반환한다",
+    ],
+    correct: 1,
+    explanation: "Promise.all은 병렬로 실행하며 모두 resolve시 배열을 반환합니다. 하나라도 reject되면 전체가 reject됩니다. (Promise.allSettled와 다름)",
+  },
+  {
+    question: "Python에서 `lambda x, y: x if x > y else y`와 동일한 역할의 내장 함수는?",
+    options: ["abs(x, y)", "max(x, y)", "sum(x, y)", "sorted(x, y)"],
+    correct: 1,
+    explanation: "이 lambda는 두 값 중 큰 값을 반환합니다. Python 내장 함수 `max(x, y)`와 동일합니다.",
+  },
+];
+
+function QuizGame() {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedOption, setSelectedOption] = useState<number | null>(null);
+  const [score, setScore] = useState(0);
+  const [isFinished, setIsFinished] = useState(false);
+
+  const question = QUIZ_QUESTIONS[currentIndex];
+  const isAnswered = selectedOption !== null;
+  const total = QUIZ_QUESTIONS.length;
+
+  const handleSelect = (optionIndex: number) => {
+    if (isAnswered) return;
+    setSelectedOption(optionIndex);
+    if (optionIndex === question.correct) {
+      setScore(s => s + 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (currentIndex + 1 >= total) {
+      setIsFinished(true);
+    } else {
+      setCurrentIndex(i => i + 1);
+      setSelectedOption(null);
+    }
+  };
+
+  const handleReplay = () => {
+    setCurrentIndex(0);
+    setSelectedOption(null);
+    setScore(0);
+    setIsFinished(false);
+  };
+
+  const getOptionClass = (optionIndex: number) => {
+    if (!isAnswered) return 'quiz-option';
+    if (optionIndex === question.correct) return 'quiz-option correct';
+    if (optionIndex === selectedOption) return 'quiz-option incorrect';
+    return 'quiz-option';
+  };
+
+  if (isFinished) {
+    const pct = Math.round((score / total) * 100);
+    let grade = '';
+    if (pct === 100) grade = '완벽! 🏆';
+    else if (pct >= 80) grade = '훌륭해요! 🎉';
+    else if (pct >= 60) grade = '잘 했어요! 👍';
+    else grade = '더 공부해봐요! 📚';
+
+    return (
+      <div className="quiz-game">
+        <div className="quiz-result-screen">
+          <div className="quiz-result-grade">{grade}</div>
+          <div className="quiz-result-score">
+            <span className="quiz-result-num">{score}</span>
+            <span className="quiz-result-denom">/ {total}</span>
+          </div>
+          <div className="quiz-result-pct">{pct}% 정답</div>
+          <button className="game-btn" onClick={handleReplay}>다시 풀기</button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="quiz-game">
+      <div className="quiz-progress-bar">
+        <div className="quiz-progress-fill" style={{ width: `${((currentIndex) / total) * 100}%` }} />
+      </div>
+      <div className="quiz-counter">
+        Question <strong>{currentIndex + 1}</strong> / {total}
+        <span className="quiz-score-inline">Score: {score}</span>
+      </div>
+      <div className="quiz-question">
+        {question.question.split('\n').map((line, i) => (
+          <span key={i}>{line}{i < question.question.split('\n').length - 1 && <br />}</span>
+        ))}
+      </div>
+      <div className="quiz-options">
+        {question.options.map((opt, i) => (
+          <button
+            key={i}
+            className={getOptionClass(i)}
+            onClick={() => handleSelect(i)}
+            disabled={isAnswered}
+          >
+            <span className="quiz-option-label">{String.fromCharCode(65 + i)}</span>
+            <span className="quiz-option-text">{opt}</span>
+          </button>
+        ))}
+      </div>
+      {isAnswered && (
+        <div className={`quiz-explanation ${selectedOption === question.correct ? 'correct' : 'incorrect'}`}>
+          <strong>{selectedOption === question.correct ? 'Correct!' : 'Incorrect.'}</strong> {question.explanation}
+        </div>
+      )}
+      {isAnswered && (
+        <button className="game-btn" onClick={handleNext}>
+          {currentIndex + 1 >= total ? 'See results' : 'Next question →'}
+        </button>
+      )}
+    </div>
+  );
+}
+
 // ─────────── Main Games Page ───────────
 export default function GamesPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -439,6 +780,8 @@ export default function GamesPage() {
     snake: Snake,
     memory: Memory,
     '2048': G2048,
+    typing: TypingGame,
+    quiz: QuizGame,
   };
 
   useEffect(() => {
@@ -562,6 +905,34 @@ export default function GamesPage() {
                       <rect x="80" y="100" width="36" height="36" rx="4" fill="var(--accent)"/><text x="98" y="124" fontSize="12" fill="var(--paper)">256</text>
                       <rect x="120" y="100" width="36" height="36" rx="4" fill="var(--ink)"/><text x="138" y="124" fontSize="12" fill="var(--accent)">2048</text>
                     </g>
+                  </svg>
+                )}
+                {g.id === 'typing' && (
+                  <svg viewBox="0 0 200 140" className="game-preview-svg">
+                    <rect width="200" height="140" fill="var(--paper-2)"/>
+                    <rect x="20" y="30" width="160" height="50" rx="6" fill="var(--paper-3)" stroke="var(--ink-2)" strokeWidth="1"/>
+                    <text x="30" y="52" fontFamily="monospace" fontSize="11" fill="var(--accent)">const</text>
+                    <text x="65" y="52" fontFamily="monospace" fontSize="11" fill="var(--ink)"> greeting =</text>
+                    <text x="30" y="70" fontFamily="monospace" fontSize="11" fill="var(--ink-2)">&quot;Hello, world!&quot;;</text>
+                    <rect x="20" y="95" width="160" height="28" rx="6" fill="var(--paper)" stroke="var(--ink-2)" strokeWidth="1"/>
+                    <text x="30" y="114" fontFamily="monospace" fontSize="11" fill="var(--ink)">const greet</text>
+                    <rect x="117" y="100" width="2" height="16" rx="1" fill="var(--accent)"/>
+                  </svg>
+                )}
+                {g.id === 'quiz' && (
+                  <svg viewBox="0 0 200 140" className="game-preview-svg">
+                    <rect width="200" height="140" fill="var(--paper-2)"/>
+                    <rect x="20" y="18" width="160" height="34" rx="5" fill="var(--paper-3)" stroke="var(--ink-2)" strokeWidth="1"/>
+                    <text x="100" y="40" fontFamily="Georgia" fontSize="12" fill="var(--ink)" textAnchor="middle">What is a closure?</text>
+                    <rect x="20" y="60" width="75" height="22" rx="4" fill="var(--accent)" opacity="0.9"/>
+                    <text x="57" y="75" fontFamily="Georgia" fontSize="10" fill="var(--paper)" textAnchor="middle">A function + scope</text>
+                    <rect x="105" y="60" width="75" height="22" rx="4" fill="var(--paper-3)" stroke="var(--ink-2)" strokeWidth="1"/>
+                    <text x="142" y="75" fontFamily="Georgia" fontSize="10" fill="var(--ink)" textAnchor="middle">A class method</text>
+                    <rect x="20" y="90" width="75" height="22" rx="4" fill="var(--paper-3)" stroke="var(--ink-2)" strokeWidth="1"/>
+                    <text x="57" y="105" fontFamily="Georgia" fontSize="10" fill="var(--ink)" textAnchor="middle">A loop construct</text>
+                    <rect x="105" y="90" width="75" height="22" rx="4" fill="var(--paper-3)" stroke="var(--ink-2)" strokeWidth="1"/>
+                    <text x="142" y="105" fontFamily="Georgia" fontSize="10" fill="var(--ink)" textAnchor="middle">A type alias</text>
+                    <text x="100" y="130" fontFamily="Georgia" fontSize="10" fill="var(--ink-2)" textAnchor="middle">JS · TS · Python</text>
                   </svg>
                 )}
               </div>
