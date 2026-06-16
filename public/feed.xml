@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Good Thinking</title>
+    <link>https://my-blog-pied-nu.vercel.app</link>
+    <description>코드와 사람 사이의 결정들. 기술 학습, 게임, 아이디어를 나눕니다.</description>
+    <language>ko</language>
+    <atom:link href="https://my-blog-pied-nu.vercel.app/feed.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Next.js 14로 마이그레이션하며 배운 5가지</title>
+      <link>https://my-blog-pied-nu.vercel.app/blog/nextjs-14-migration-lessons</link>
+      <description>Pages Router에서 App Router로 갈아탈 때 '그냥 폴더 이름만 바꾸면 되지 않나?' 라고 생각했다. 완전히 틀렸다.</description>
+      <pubDate>Mon, 16 Jun 2026 00:00:00 GMT</pubDate>
+      <guid>https://my-blog-pied-nu.vercel.app/blog/nextjs-14-migration-lessons</guid>
+    </item>
+    <item>
+      <title>Claude Code로 6개월, 이제 AI 없이 못 산다</title>
+      <link>https://my-blog-pied-nu.vercel.app/blog/claude-code-six-months</link>
+      <description>AI 코딩 도구가 처음 나왔을 때 '결국 시니어가 더 잘 써먹겠지'라고 생각했다. 반은 맞고 반은 틀렸다. 초보일수록 더 조심해야 하지만, 제대로 쓰면 레벨업이 빠르다.</description>
+      <pubDate>Mon, 16 Jun 2026 00:00:00 GMT</pubDate>
+      <guid>https://my-blog-pied-nu.vercel.app/blog/claude-code-six-months</guid>
+    </item>
+    <item>
+      <title>게임을 만들며 배운 React Hooks 정리</title>
+      <link>https://my-blog-pied-nu.vercel.app/blog/react-hooks-game-patterns</link>
+      <description>스네이크 게임을 React로 만들다가 useRef와 useState의 차이를 처음으로 진짜 이해했다. 게임은 훅의 특성을 날카롭게 드러내는 최고의 예제다.</description>
+      <pubDate>Mon, 16 Jun 2026 00:00:00 GMT</pubDate>
+      <guid>https://my-blog-pied-nu.vercel.app/blog/react-hooks-game-patterns</guid>
+    </item>
+    <item>
+      <title>TypeScript 초보자를 위한 3가지 제네릭 패턴</title>
+      <link>https://my-blog-pied-nu.vercel.app/blog/typescript-generics-three-patterns</link>
+      <description>제네릭 문서를 처음 읽었을 때 &lt;T&gt;가 뭔지 몰라서 닫아버렸다. 이제는 하루에 10번 이상 쓴다. 진짜로 필요한 패턴만 3가지 골랐다.</description>
+      <pubDate>Mon, 16 Jun 2026 00:00:00 GMT</pubDate>
+      <guid>https://my-blog-pied-nu.vercel.app/blog/typescript-generics-three-patterns</guid>
+    </item>
+    <item>
+      <title>왜 CSS 변수로 다크모드를 만들까</title>
+      <link>https://my-blog-pied-nu.vercel.app/blog/css-variables-dark-mode</link>
+      <description>다크모드를 처음 구현할 때 className을 토글하는 방식을 썼다. 동작은 했지만 유지보수가 지옥이었다. CSS 커스텀 프로퍼티가 정답인 이유를 설명한다.</description>
+      <pubDate>Mon, 16 Jun 2026 00:00:00 GMT</pubDate>
+      <guid>https://my-blog-pied-nu.vercel.app/blog/css-variables-dark-mode</guid>
+    </item>
+    <item>
+      <title>React 18의 Concurrent Features, 6개월 써본 후기</title>
+      <link>https://my-blog-pied-nu.vercel.app/blog/react-18-concurrent</link>
+      <description>Concurrent rendering은 마법이 아니다. 단지 React에게 '이건 좀 기다려도 돼' 라고 말할 수 있게 된 것뿐. 그게 뭘 바꾸는지 6개월간의 실전을 정리했다.</description>
+      <pubDate>Tue, 12 May 2026 00:00:00 GMT</pubDate>
+      <guid>https://my-blog-pied-nu.vercel.app/blog/react-18-concurrent</guid>
+    </item>
+    <item>
+      <title>TypeScript `satisfies`가 바꾸는 작은 것들</title>
+      <link>https://my-blog-pied-nu.vercel.app/blog/typescript-satisfies</link>
+      <description>4.9에서 들어온 satisfies는 처음엔 사소해 보였다. 그런데 한 번 익숙해지면 as와 타입 어노테이션을 절반쯤 쓰지 않게 된다.</description>
+      <pubDate>Mon, 28 Apr 2026 00:00:00 GMT</pubDate>
+      <guid>https://my-blog-pied-nu.vercel.app/blog/typescript-satisfies</guid>
+    </item>
+    <item>
+      <title>JavaScript 비동기 처리 완벽 정리 - Promise부터 async/await까지</title>
+      <link>https://my-blog-pied-nu.vercel.app/blog/javascript-async-promise-to-async-await</link>
+      <description>setTimeout 하나도 헷갈리던 시절이 있었다. 비동기가 왜 필요한지부터, Promise와 async/await의 실제 차이까지 한 번에 정리한다.</description>
+      <pubDate>Mon, 16 Jun 2026 00:00:00 GMT</pubDate>
+      <guid>https://my-blog-pied-nu.vercel.app/blog/javascript-async-promise-to-async-await</guid>
+    </item>
+    <item>
+      <title>CSS Flexbox vs Grid - 언제 뭘 쓸까</title>
+      <link>https://my-blog-pied-nu.vercel.app/blog/css-flexbox-vs-grid</link>
+      <description>Flexbox와 Grid 둘 다 배웠는데, 실제로 코드를 짤 때 뭘 써야 할지 매번 고민했다. '1차원이면 Flex, 2차원이면 Grid'라는 말이 처음엔 와닿지 않았다.</description>
+      <pubDate>Mon, 16 Jun 2026 00:00:00 GMT</pubDate>
+      <guid>https://my-blog-pied-nu.vercel.app/blog/css-flexbox-vs-grid</guid>
+    </item>
+    <item>
+      <title>Git 초보자 가이드 - commit, push, pull의 의미</title>
+      <link>https://my-blog-pied-nu.vercel.app/blog/git-basics-for-beginners</link>
+      <description>처음 Git을 배울 때 명령어는 외웠는데 왜 하는지 몰랐다. commit이 저장이고, push가 업로드라는 걸 알면서도 실수를 반복했다.</description>
+      <pubDate>Mon, 16 Jun 2026 00:00:00 GMT</pubDate>
+      <guid>https://my-blog-pied-nu.vercel.app/blog/git-basics-for-beginners</guid>
+    </item>
+    <item>
+      <title>API 설계의 기초 - REST vs GraphQL</title>
+      <link>https://my-blog-pied-nu.vercel.app/blog/rest-vs-graphql-api-design</link>
+      <description>회사에서 GraphQL 프로젝트에 투입됐을 때, REST만 알던 나는 왜 이렇게 복잡하게 쓰나 싶었다. 6개월 후엔 생각이 달라졌다.</description>
+      <pubDate>Mon, 16 Jun 2026 00:00:00 GMT</pubDate>
+      <guid>https://my-blog-pied-nu.vercel.app/blog/rest-vs-graphql-api-design</guid>
+    </item>
+    <item>
+      <title>성능 최적화 첫 발 - 렌더링 성능 개선하기</title>
+      <link>https://my-blog-pied-nu.vercel.app/blog/react-performance-optimization</link>
+      <description>버튼 하나 클릭했는데 전체 페이지가 다시 그려진다. React를 처음 쓸 때 흔히 만나는 상황이다. 최적화 도구를 쓰기 전에 '왜 느린지'를 아는 게 먼저다.</description>
+      <pubDate>Mon, 16 Jun 2026 00:00:00 GMT</pubDate>
+      <guid>https://my-blog-pied-nu.vercel.app/blog/react-performance-optimization</guid>
+    </item>
+    <item>
+      <title>배포 후 버그를 줄이려면 - 테스트 자동화 입문</title>
+      <link>https://my-blog-pied-nu.vercel.app/blog/testing-automation-for-beginners</link>
+      <description>테스트 코드를 작성하면 개발이 느려진다고 생각했다. 버그를 세 번째 직접 고친 후에야 테스트가 오히려 빠르게 해준다는 걸 알았다.</description>
+      <pubDate>Mon, 16 Jun 2026 00:00:00 GMT</pubDate>
+      <guid>https://my-blog-pied-nu.vercel.app/blog/testing-automation-for-beginners</guid>
+    </item>
+    <item>
+      <title>데이터베이스 기초 - SQL vs NoSQL</title>
+      <link>https://my-blog-pied-nu.vercel.app/blog/sql-vs-nosql-database-basics</link>
+      <description>처음 프로젝트를 시작할 때 MySQL이냐 MongoDB냐를 고민했다. 돌이켜보면 차이를 제대로 모른 채로 선택했다. 이 글은 그 기준을 잡아준다.</description>
+      <pubDate>Mon, 16 Jun 2026 00:00:00 GMT</pubDate>
+      <guid>https://my-blog-pied-nu.vercel.app/blog/sql-vs-nosql-database-basics</guid>
+    </item>
+    <item>
+      <title>AI와 개발자 - ChatGPT를 개발에 활용하는 방법</title>
+      <link>https://my-blog-pied-nu.vercel.app/blog/ai-tools-for-developers</link>
+      <description>AI가 코드를 짜주니까 개발자가 필요 없다는 말이 있다. 직접 써보니 반은 맞고 반은 틀렸다. AI를 제대로 쓰는 법과 함정을 정리한다.</description>
+      <pubDate>Mon, 16 Jun 2026 00:00:00 GMT</pubDate>
+      <guid>https://my-blog-pied-nu.vercel.app/blog/ai-tools-for-developers</guid>
+    </item>
+    <item>
+      <title>보안 기초 - 웹 개발자가 알아야 할 5가지</title>
+      <link>https://my-blog-pied-nu.vercel.app/blog/web-security-basics</link>
+      <description>보안을 나중에 생각하면 나중에 큰일 난다. 시작부터 알아야 할 기초 5가지를 코드 예시와 함께 정리했다.</description>
+      <pubDate>Mon, 16 Jun 2026 00:00:00 GMT</pubDate>
+      <guid>https://my-blog-pied-nu.vercel.app/blog/web-security-basics</guid>
+    </item>
+  </channel>
+</rss>

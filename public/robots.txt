@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://my-blog-pied-nu.vercel.app/sitemap.xml
+
+Disallow: /_next/
+Disallow: /api/
