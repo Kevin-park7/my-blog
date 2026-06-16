@@ -1,6 +1,10 @@
-'use client';
-
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
+
+const NewsletterSignup = dynamic(() => import('@/components/NewsletterSignup'), {
+  loading: () => <div className="h-32" />,
+  ssr: false,
+});
 
 export default function Home() {
   return (
@@ -72,6 +76,13 @@ export default function Home() {
               <div className="text-[var(--accent)]">Use →</div>
             </Link>
           </div>
+        </div>
+      </section>
+
+      {/* Newsletter */}
+      <section className="py-16 border-b border-[var(--rule)]">
+        <div className="max-w-xl mx-auto px-6">
+          <NewsletterSignup />
         </div>
       </section>
 

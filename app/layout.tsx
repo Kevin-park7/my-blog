@@ -6,19 +6,25 @@ import '../styles/globals.css';
 const newsreader = Newsreader({
   subsets: ['latin'],
   variable: '--font-newsreader',
-  weight: ['400', '500', '600'],
+  weight: ['400', '500'],
+  display: 'swap',
+  preload: true,
 });
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
   variable: '--font-jetbrains-mono',
-  weight: ['400', '500', '600'],
+  weight: ['400', '500'],
+  display: 'swap',
+  preload: false,
 });
 
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-inter',
-  weight: ['400', '500', '600'],
+  weight: ['400', '500'],
+  display: 'swap',
+  preload: false,
 });
 
 export const metadata: Metadata = {
