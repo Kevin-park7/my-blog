@@ -8,6 +8,7 @@ export interface Post {
   category: string;
   excerpt: string;
   body: Block[];
+  series?: string;
 }
 
 export interface Block {
@@ -38,6 +39,7 @@ export const POSTS: Post[] = [
     readMin: 7,
     tags: ["Next.js", "블로그"],
     category: "Frontend",
+    series: "Next.js 딥다이브",
     excerpt: "Pages Router에서 App Router로 갈아탈 때 '그냥 폴더 이름만 바꾸면 되지 않나?' 라고 생각했다. 완전히 틀렸다.",
     body: [
       { type: "p", text: "이 블로그를 Next.js 14 App Router로 직접 만들면서 배운 것들을 정리했다. 튜토리얼에선 안 가르쳐주는, 실제로 부딪혀야 아는 것들이다." },
@@ -89,6 +91,7 @@ export const POSTS: Post[] = [
     readMin: 8,
     tags: ["React", "JavaScript", "Hooks"],
     category: "Frontend",
+    series: "React 마스터하기",
     excerpt: "스네이크 게임을 React로 만들다가 useRef와 useState의 차이를 처음으로 진짜 이해했다. 게임은 훅의 특성을 날카롭게 드러내는 최고의 예제다.",
     body: [
       { type: "p", text: "처음 React Hooks를 배울 때 가장 헷갈렸던 건 'useRef vs useState'였다. 둘 다 값을 저장하는데, 언제 어떤 걸 쓰나?" },
@@ -164,6 +167,7 @@ export const POSTS: Post[] = [
     readMin: 9,
     tags: ["React", "Frontend"],
     category: "Frontend",
+    series: "React 마스터하기",
     excerpt: "Concurrent rendering은 마법이 아니다. 단지 React에게 '이건 좀 기다려도 돼' 라고 말할 수 있게 된 것뿐. 그게 뭘 바꾸는지 6개월간의 실전을 정리했다.",
     body: [
       { type: "p", text: "React 18이 정식 릴리즈된 지 한참 됐는데, 막상 회사 코드베이스에서 useTransition 같은 걸 본 적이 있는가? 나는 거의 없다." },
@@ -409,4 +413,8 @@ export function getPosts() {
 
 export function getPostById(id: string) {
   return POSTS.find(p => p.id === id);
+}
+
+export function getPostsBySeries(series: string) {
+  return POSTS.filter(p => p.series === series);
 }

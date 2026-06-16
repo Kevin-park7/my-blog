@@ -5,6 +5,12 @@ import ShareButtons from '@/components/ShareButtons';
 import CommentsSection from '@/components/CommentsSection';
 import RelatedPosts from '@/components/RelatedPosts';
 import LikeButton from '@/components/LikeButton';
+import SavedButton from '@/components/SavedButton';
+import PostView from '@/components/PostView';
+import RecentPosts from '@/components/RecentPosts';
+import SeriesPosts from '@/components/SeriesPosts';
+import RecentPostsTracker from '@/components/RecentPostsTracker';
+import CommentCount from '@/components/CommentCount';
 
 const SITE_URL = 'https://my-blog-pied-nu.vercel.app';
 
@@ -26,18 +32,36 @@ export default function PostPage({ params }: { params: { id: string } }) {
           <h1 className="text-5xl font-bold mb-4">{post.title}</h1>
           <p className="text-xl text-[var(--muted)] mb-8">{post.subtitle}</p>
 
-          <div className="flex items-center gap-4 text-sm text-[var(--muted)] mb-12">
+          <div className="flex items-center gap-4 text-sm text-[var(--muted)] mb-6">
             <time>{post.date}</time>
             <span>·</span>
             <span>{post.readMin} min</span>
+            <PostView postId={post.id} />
+            <CommentCount postId={post.id} />
             <LikeButton postId={post.id} />
+            <SavedButton postId={post.id} />
           </div>
+
+          {post.series && (
+            <SeriesPosts series={post.series} currentPostId={post.id} />
+          )}
 
           <div className="space-y-6 prose prose-invert">
             {post.body.map((block, i) => {
               if (block.type === 'p') return <p key={i}>{block.text}</p>;
               if (block.type === 'h2') return <h2 key={i} className="text-3xl font-bold mt-8">{block.text}</h2>;
-              if (block.type === 'code') return <pre key={i} className="bg-[var(--paper-2)] p-4 rounded text-sm overflow-auto"><code>{block.text}</code></pre>;
+              if (block.type === 'code') return (
+                <div key={i} className="relative">
+                  {block.lang && (
+                    <span className="absolute top-2 right-3 text-xs font-mono text-[var(--ink-2)] opacity-60 select-none">
+                      {block.lang}
+                    </span>
+                  )}
+                  <pre className="bg-[var(--paper-2)] p-4 rounded text-sm overflow-auto">
+                    <code>{block.text}</code>
+                  </pre>
+                </div>
+              );
               if (block.type === 'quote') return <blockquote key={i} className="border-l-4 border-[var(--accent)] pl-4 italic">{block.text}</blockquote>;
               return null;
             })}
@@ -46,6 +70,8 @@ export default function PostPage({ params }: { params: { id: string } }) {
           <ShareButtons title={post.title} postUrl={postUrl} />
         </article>
 
+        <RecentPostsTracker postId={post.id} title={post.title} />
+        <RecentPosts currentPostId={post.id} />
         <CommentsSection postId={post.id} />
         <RelatedPosts currentPostId={post.id} tags={post.tags} />
       </div>
