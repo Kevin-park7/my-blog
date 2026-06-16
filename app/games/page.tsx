@@ -7,6 +7,7 @@ const GAMES = [
   { id: 'tictactoe', name: 'Tic-Tac-Toe', ko: '틱택토', tag: 'Classic', desc: '간단한 룰, 깊은 전략. 컴퓨터와 한 판.', diff: '★', minutes: '2 min' },
   { id: 'snake', name: 'Snake', ko: '스네이크', tag: 'Arcade', desc: '뱀을 키워라. 자기 꼬리만 안 물면 된다.', minutes: '5 min', diff: '★★' },
   { id: 'memory', name: 'Memory', ko: '메모리 매치', tag: 'Puzzle', desc: '카드를 뒤집어 짝을 찾는 고전 두뇌 게임.', diff: '★★', minutes: '3 min' },
+  { id: 'flipcard', name: 'Flip Card', ko: '플립 카드', tag: 'Memory', desc: '단어 카드를 뒤집어 앞면을 기억하라. 순서대로 정확히 맞혀라.', diff: '★★', minutes: '3 min' },
   { id: '2048', name: '2048', ko: '이공사팔', tag: 'Puzzle', desc: '같은 숫자를 합쳐 2048을 만들어라.', diff: '★★★', minutes: '10 min' },
   { id: 'typing', name: 'Typing', ko: '타이핑', tag: 'Skill', desc: '코드를 빠르고 정확하게 타이핑하라. WPM으로 실력을 측정.', diff: '★★', minutes: '1 min' },
   { id: 'quiz', name: 'Tech Quiz', ko: '기술 퀴즈', tag: 'Quiz', desc: 'JS · TS · Python 10문제. 개발 지식을 점검하라.', diff: '★★', minutes: '5 min' },
@@ -1308,6 +1309,171 @@ function QuizGame() {
   );
 }
 
+// ─────────── Flip Card Memory Game ───────────
+const FLIP_WORDS = [
+  { front: 'closure', back: '함수 + 외부 스코프' },
+  { front: 'Promise', back: '비동기 작업 객체' },
+  { front: 'hoisting', back: '선언을 최상단으로' },
+  { front: 'memoize', back: '결과 캐싱 최적화' },
+  { front: 'debounce', back: '마지막 호출만 실행' },
+  { front: 'throttle', back: '일정 간격만 실행' },
+  { front: 'generic', back: '타입 파라미터 T' },
+  { front: 'decorator', back: '함수를 감싸는 패턴' },
+  { front: 'recursion', back: '자기 자신을 호출' },
+  { front: 'iterator', back: '순차 접근 프로토콜' },
+  { front: 'prototype', back: 'JS 객체 상속 체인' },
+  { front: 'immutable', back: '변경 불가 데이터' },
+];
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function FlipCard() {
+  const ROUND_SIZE = 6;
+  const [cards, setCards] = useState(() => shuffle(FLIP_WORDS).slice(0, ROUND_SIZE));
+  const [phase, setPhase] = useState<'study' | 'quiz' | 'done'>('study');
+  const [studyIdx, setStudyIdx] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const [quizCards, setQuizCards] = useState<typeof FLIP_WORDS>([]);
+  const [quizIdx, setQuizIdx] = useState(0);
+  const [options, setOptions] = useState<string[]>([]);
+  const [selected, setSelected] = useState<string | null>(null);
+  const [score, setScore] = useState(0);
+
+  const makeOptions = useCallback((correct: string, pool: typeof FLIP_WORDS) => {
+    const others = shuffle(pool.filter(c => c.back !== correct)).slice(0, 3).map(c => c.back);
+    return shuffle([correct, ...others]);
+  }, []);
+
+  const startQuiz = useCallback(() => {
+    const shuffled = shuffle(cards);
+    setQuizCards(shuffled);
+    setQuizIdx(0);
+    setScore(0);
+    setSelected(null);
+    setOptions(makeOptions(shuffled[0].back, cards));
+    setPhase('quiz');
+  }, [cards, makeOptions]);
+
+  const handleStudyNext = () => {
+    setFlipped(false);
+    if (studyIdx + 1 >= cards.length) {
+      startQuiz();
+    } else {
+      setStudyIdx(i => i + 1);
+    }
+  };
+
+  const handleSelect = (opt: string) => {
+    if (selected) return;
+    setSelected(opt);
+    if (opt === quizCards[quizIdx].back) setScore(s => s + 1);
+  };
+
+  const handleQuizNext = () => {
+    const next = quizIdx + 1;
+    if (next >= quizCards.length) {
+      setPhase('done');
+      saveToLeaderboard('flipcard', score + (selected === quizCards[quizIdx].back ? 1 : 0));
+    } else {
+      setQuizIdx(next);
+      setSelected(null);
+      setOptions(makeOptions(quizCards[next].back, cards));
+    }
+  };
+
+  const reset = () => {
+    const newCards = shuffle(FLIP_WORDS).slice(0, ROUND_SIZE);
+    setCards(newCards);
+    setPhase('study');
+    setStudyIdx(0);
+    setFlipped(false);
+    setScore(0);
+    setSelected(null);
+  };
+
+  if (phase === 'study') {
+    const card = cards[studyIdx];
+    return (
+      <div className="flipcard-game">
+        <div className="flipcard-hud">
+          <span>학습 <strong>{studyIdx + 1}/{cards.length}</strong></span>
+          <span className="diff-badge">STUDY</span>
+        </div>
+        <p className="flipcard-hint">카드를 클릭해서 뜻을 확인하세요</p>
+        <div className={`flipcard-card${flipped ? ' flipped' : ''}`} onClick={() => setFlipped(f => !f)}>
+          <div className="flipcard-front">{card.front}</div>
+          <div className="flipcard-back">{card.back}</div>
+        </div>
+        <button className="game-btn" onClick={handleStudyNext}>
+          {studyIdx + 1 >= cards.length ? '퀴즈 시작 →' : '다음 카드 →'}
+        </button>
+      </div>
+    );
+  }
+
+  if (phase === 'quiz') {
+    const card = quizCards[quizIdx];
+    const finalScore = score + (selected === card.back ? 1 : 0);
+    return (
+      <div className="flipcard-game">
+        <div className="flipcard-hud">
+          <span>퀴즈 <strong>{quizIdx + 1}/{quizCards.length}</strong></span>
+          <span>점수 <strong>{score}</strong></span>
+          <span className="diff-badge">QUIZ</span>
+        </div>
+        <div className="flipcard-question">
+          <span className="flipcard-question-label">뜻은?</span>
+          <span className="flipcard-question-word">{card.front}</span>
+        </div>
+        <div className="flipcard-options">
+          {options.map(opt => {
+            let cls = 'flipcard-option';
+            if (selected) {
+              if (opt === card.back) cls += ' correct';
+              else if (opt === selected) cls += ' incorrect';
+            }
+            return (
+              <button key={opt} className={cls} onClick={() => handleSelect(opt)} disabled={!!selected}>
+                {opt}
+              </button>
+            );
+          })}
+        </div>
+        {selected && (
+          <button className="game-btn" onClick={handleQuizNext}>
+            {quizIdx + 1 >= quizCards.length ? `결과 보기 (${finalScore}/${quizCards.length})` : '다음 →'}
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  const total = quizCards.length;
+  const pct = Math.round((score / total) * 100);
+  const grade = pct === 100 ? '완벽!' : pct >= 80 ? '훌륭해요!' : pct >= 60 ? '잘 했어요!' : '다시 공부해봐요!';
+  return (
+    <div className="flipcard-game">
+      <div className="quiz-result-screen">
+        <div className="quiz-result-grade">{grade}</div>
+        <div className="quiz-result-score">
+          <span className="quiz-result-num">{score}</span>
+          <span className="quiz-result-denom">/ {total}</span>
+        </div>
+        <div className="quiz-result-pct">{pct}% 정답</div>
+        <Leaderboard gameName="flipcard" currentScore={score} />
+        <button className="game-btn" onClick={reset}>다시 하기</button>
+      </div>
+    </div>
+  );
+}
+
 // ─────────── Main Games Page ───────────
 export default function GamesPage() {
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -1317,6 +1483,7 @@ export default function GamesPage() {
     tictactoe: TicTacToe,
     snake: Snake,
     memory: Memory,
+    flipcard: FlipCard,
     '2048': G2048,
     typing: TypingGame,
     quiz: QuizGame,
@@ -1427,6 +1594,18 @@ export default function GamesPage() {
                       <rect x="150" y="76" width="32" height="40" rx="3" fill="var(--ink)"/>
                       <text x="166" y="102" fontFamily="Georgia" fontSize="22" fill="var(--paper)" textAnchor="middle">?</text>
                     </g>
+                  </svg>
+                )}
+                {g.id === 'flipcard' && (
+                  <svg viewBox="0 0 200 140" className="game-preview-svg">
+                    <rect width="200" height="140" fill="var(--paper-2)"/>
+                    <rect x="20" y="25" width="74" height="90" rx="6" fill="var(--ink)" opacity="0.9"/>
+                    <text x="57" y="76" fontFamily="Georgia" fontSize="13" fill="var(--paper)" textAnchor="middle">closure</text>
+                    <rect x="106" y="25" width="74" height="90" rx="6" fill="var(--accent)" opacity="0.9"/>
+                    <text x="143" y="65" fontFamily="Georgia" fontSize="11" fill="var(--paper)" textAnchor="middle">함수 +</text>
+                    <text x="143" y="82" fontFamily="Georgia" fontSize="11" fill="var(--paper)" textAnchor="middle">외부 스코프</text>
+                    <text x="57" y="105" fontFamily="Georgia" fontSize="9" fill="var(--muted)" textAnchor="middle">앞면</text>
+                    <text x="143" y="105" fontFamily="Georgia" fontSize="9" fill="var(--paper)" textAnchor="middle" opacity="0.8">뒷면</text>
                   </svg>
                 )}
                 {g.id === '2048' && (
