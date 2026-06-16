@@ -12,8 +12,109 @@ const GAMES = [
   { id: 'quiz', name: 'Tech Quiz', ko: '기술 퀴즈', tag: 'Quiz', desc: 'JS · TS · Python 10문제. 개발 지식을 점검하라.', diff: '★★', minutes: '5 min' },
 ];
 
+// ─────────── Leaderboard helpers ───────────
+interface LeaderboardEntry {
+  rank: number;
+  score: number;
+  date: string;
+}
+
+function saveToLeaderboard(gameName: string, score: number): boolean {
+  try {
+    const key = `${gameName}_leaderboard`;
+    const raw = localStorage.getItem(key);
+    const entries: { score: number; date: string }[] = raw ? JSON.parse(raw) : [];
+    entries.push({ score, date: new Date().toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' }) });
+    entries.sort((a, b) => b.score - a.score);
+    const top5 = entries.slice(0, 5);
+    localStorage.setItem(key, JSON.stringify(top5));
+    // return true if this score made it into top 5
+    return top5.some((e, i) => i < top5.length && e.score === score && top5.indexOf(e) === top5.findIndex(x => x.score === score && x.date === e.date));
+  } catch {
+    return false;
+  }
+}
+
+function getLeaderboard(gameName: string): LeaderboardEntry[] {
+  try {
+    const key = `${gameName}_leaderboard`;
+    const raw = localStorage.getItem(key);
+    if (!raw) return [];
+    const entries: { score: number; date: string }[] = JSON.parse(raw);
+    return entries.map((e, i) => ({ rank: i + 1, score: e.score, date: e.date }));
+  } catch {
+    return [];
+  }
+}
+
+// ─────────── Leaderboard Component ───────────
+function Leaderboard({ gameName, currentScore }: { gameName: string; currentScore?: number }) {
+  const entries = getLeaderboard(gameName);
+  if (entries.length === 0) return null;
+  return (
+    <div className="leaderboard">
+      <div className="leaderboard-title">Top Scores</div>
+      <table className="leaderboard-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Score</th>
+            <th>Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          {entries.map(e => (
+            <tr key={e.rank} className={currentScore !== undefined && e.score === currentScore ? 'leaderboard-highlight' : ''}>
+              <td>{e.rank}</td>
+              <td><strong>{e.score}</strong></td>
+              <td>{e.date}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+// ─────────── Difficulty Selector ───────────
+type DiffLevel = 'easy' | 'normal' | 'hard';
+
+interface DiffOption {
+  id: DiffLevel;
+  label: string;
+  desc: string;
+}
+
+function DifficultySelector({
+  options,
+  selected,
+  onChange,
+  disabled,
+}: {
+  options: DiffOption[];
+  selected: DiffLevel;
+  onChange: (d: DiffLevel) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <div className="diff-selector">
+      {options.map(opt => (
+        <button
+          key={opt.id}
+          className={`diff-btn${selected === opt.id ? ' active' : ''}`}
+          onClick={() => onChange(opt.id)}
+          disabled={disabled}
+          title={opt.desc}
+        >
+          {opt.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
 const TTT_LINES = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
-const tttWinner = (b: any[]) => {
+const tttWinner = (b: (string | null)[]) => {
   for (const [a,c,d] of TTT_LINES) if (b[a] && b[a] === b[c] && b[a] === b[d]) return b[a];
   return b.every(v => v) ? 'draw' : null;
 };
@@ -26,7 +127,7 @@ function TicTacToe() {
 
   const result = tttWinner(board);
 
-  const aiMove = useCallback((b: any[]) => {
+  const aiMove = useCallback((b: (string | null)[]) => {
     const tryMark = (mark: string) => {
       for (let i = 0; i < 9; i++) {
         if (!b[i]) { const t = [...b]; t[i] = mark; if (tttWinner(t) === mark) return i; }
@@ -74,7 +175,7 @@ function TicTacToe() {
   return (
     <div className="ttt">
       <div className="ttt-status">
-        {result === 'X' && <span><strong>You win!</strong> 🎉</span>}
+        {result === 'X' && <span><strong>You win!</strong></span>}
         {result === 'O' && <span>Computer wins. Try again?</span>}
         {result === 'draw' && <span>Draw — well played.</span>}
         {!result && turn === 'X' && <span>Your turn (X)</span>}
@@ -101,34 +202,87 @@ function TicTacToe() {
 }
 
 // ─────────── Snake ───────────
+const SNAKE_DIFFS = [
+  { id: 'easy' as DiffLevel, label: 'Easy', desc: 'Slow speed · 15×15 grid' },
+  { id: 'normal' as DiffLevel, label: 'Normal', desc: 'Medium speed · 20×20 grid' },
+  { id: 'hard' as DiffLevel, label: 'Hard', desc: 'Fast speed · 20×20 grid' },
+];
+
+const SNAKE_CONFIG = {
+  easy:   { size: 15, speed: 180, cell: 22 },
+  normal: { size: 20, speed: 120, cell: 18 },
+  hard:   { size: 20, speed: 70,  cell: 18 },
+};
+
 function Snake() {
-  const SIZE = 20;
-  const CELL = 18;
-  const [snake, setSnake] = useState([{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }]);
+  const [diff, setDiff] = useState<DiffLevel>('normal');
+  const [gameStarted, setGameStarted] = useState(false);
+  const cfg = SNAKE_CONFIG[diff];
+  const SIZE = cfg.size;
+  const CELL = cfg.cell;
+  const SPEED = cfg.speed;
+
+  const initSnake = useCallback((size: number) => {
+    const mid = Math.floor(size / 2);
+    return [{ x: mid, y: mid }, { x: mid - 1, y: mid }, { x: mid - 2, y: mid }];
+  }, []);
+
+  const [snake, setSnake] = useState(() => initSnake(SIZE));
   const [dir, setDir] = useState({ x: 1, y: 0 });
-  const [apple, setApple] = useState({ x: 15, y: 10 });
+  const [apple, setApple] = useState({ x: Math.floor(SIZE * 0.75), y: Math.floor(SIZE / 2) });
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(() => {
     try { return parseInt(localStorage.getItem('gt.snake.best') || '0', 10); } catch { return 0; }
   });
   const [over, setOver] = useState(false);
   const [paused, setPaused] = useState(false);
+  const [savedScore, setSavedScore] = useState<number | null>(null);
   const dirRef = useRef(dir);
   dirRef.current = dir;
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  const placeApple = useCallback((body: any[]) => {
+  const placeApple = useCallback((body: {x:number;y:number}[], size: number) => {
     while (true) {
-      const a = { x: Math.floor(Math.random() * SIZE), y: Math.floor(Math.random() * SIZE) };
+      const a = { x: Math.floor(Math.random() * size), y: Math.floor(Math.random() * size) };
       if (!body.some(s => s.x === a.x && s.y === a.y)) return a;
     }
   }, []);
 
-  const reset = () => {
-    const ns = [{ x: 10, y: 10 }, { x: 9, y: 10 }, { x: 8, y: 10 }];
-    setSnake(ns); setDir({ x: 1, y: 0 }); setApple(placeApple(ns));
-    setScore(0); setOver(false); setPaused(false);
+  const reset = useCallback((newDiff?: DiffLevel) => {
+    const d = newDiff ?? diff;
+    const ncfg = SNAKE_CONFIG[d];
+    const ns = initSnake(ncfg.size);
+    setSnake(ns);
+    setDir({ x: 1, y: 0 });
+    setApple(placeApple(ns, ncfg.size));
+    setScore(0);
+    setOver(false);
+    setPaused(false);
+    setSavedScore(null);
+    setGameStarted(true);
+  }, [diff, initSnake, placeApple]);
+
+  const handleDiffChange = (d: DiffLevel) => {
+    setDiff(d);
+    const ncfg = SNAKE_CONFIG[d];
+    const ns = initSnake(ncfg.size);
+    setSnake(ns);
+    setDir({ x: 1, y: 0 });
+    setApple(placeApple(ns, ncfg.size));
+    setScore(0);
+    setOver(false);
+    setPaused(false);
+    setSavedScore(null);
+    setGameStarted(false);
   };
+
+  // save to leaderboard when game over
+  useEffect(() => {
+    if (over && savedScore === null) {
+      saveToLeaderboard('snake', score);
+      setSavedScore(score);
+    }
+  }, [over, score, savedScore]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -147,7 +301,7 @@ function Snake() {
   }, [over]);
 
   useEffect(() => {
-    if (over || paused) return;
+    if (over || paused || !gameStarted) return;
     const id = setInterval(() => {
       setSnake(prev => {
         const head = { x: prev[0].x + dirRef.current.x, y: prev[0].y + dirRef.current.y };
@@ -164,13 +318,13 @@ function Snake() {
             });
             return ns;
           });
-          setApple(placeApple(next));
+          setApple(placeApple(next, SIZE));
         }
         return next;
       });
-    }, 120);
+    }, SPEED);
     return () => clearInterval(id);
-  }, [over, paused, apple, placeApple]);
+  }, [over, paused, apple, placeApple, SIZE, SPEED, gameStarted]);
 
   useEffect(() => {
     const cvs = canvasRef.current;
@@ -197,7 +351,9 @@ function Snake() {
         : (isDark ? '#8e8472' : '#3a3328');
       ctx.fillRect(s.x*CELL + 1, s.y*CELL + 1, CELL - 2, CELL - 2);
     });
-  }, [snake, apple]);
+  }, [snake, apple, SIZE, CELL]);
+
+  const lbEntries = getLeaderboard('snake');
 
   return (
     <div className="snake">
@@ -205,52 +361,116 @@ function Snake() {
         <span>Score <strong>{score}</strong></span>
         <span>·</span>
         <span>Best <strong>{best}</strong></span>
+        <span className="diff-badge">{diff.toUpperCase()}</span>
         <span className="snake-hint">방향키 / WASD · Space = 일시정지</span>
+      </div>
+      <div className="diff-row">
+        <DifficultySelector
+          options={SNAKE_DIFFS}
+          selected={diff}
+          onChange={handleDiffChange}
+          disabled={gameStarted && !over}
+        />
       </div>
       <div className="snake-canvas-wrap">
         <canvas ref={canvasRef} width={SIZE * CELL} height={SIZE * CELL} className="snake-canvas" />
+        {!gameStarted && (
+          <div className="snake-over">
+            <div className="snake-over-title">Snake</div>
+            <div className="snake-over-score">Difficulty: {diff}</div>
+            <button className="game-btn" onClick={() => reset()}>Start game</button>
+          </div>
+        )}
         {over && (
           <div className="snake-over">
             <div className="snake-over-title">Game Over</div>
             <div className="snake-over-score">Final score: {score}</div>
-            <button className="game-btn" onClick={reset}>Play again</button>
+            {lbEntries.length > 0 && lbEntries[0].score === score && <div className="new-best">New best!</div>}
+            <button className="game-btn" onClick={() => reset()}>Play again</button>
           </div>
         )}
-        {paused && !over && <div className="snake-over"><div className="snake-over-title">일시정지</div></div>}
+        {paused && !over && gameStarted && <div className="snake-over"><div className="snake-over-title">일시정지</div></div>}
       </div>
       <div className="snake-controls">
-        <button className="game-btn ghost" onClick={() => setPaused(p => !p)} disabled={over}>{paused ? 'Resume' : 'Pause'}</button>
-        <button className="game-btn ghost" onClick={reset}>Reset</button>
+        <button className="game-btn ghost" onClick={() => setPaused(p => !p)} disabled={over || !gameStarted}>{paused ? 'Resume' : 'Pause'}</button>
+        <button className="game-btn ghost" onClick={() => reset()}>Reset</button>
       </div>
+      {over && <Leaderboard gameName="snake" currentScore={score} />}
     </div>
   );
 }
 
 // ─────────── Memory Match ───────────
+const MEMORY_DIFFS = [
+  { id: 'easy' as DiffLevel, label: 'Easy', desc: '8 cards · 90s' },
+  { id: 'normal' as DiffLevel, label: 'Normal', desc: '16 cards · 120s' },
+  { id: 'hard' as DiffLevel, label: 'Hard', desc: '20 cards · 150s' },
+];
+
+const MEMORY_CONFIG = {
+  easy:   { pairs: 4,  timeLimit: 90 },
+  normal: { pairs: 8,  timeLimit: 120 },
+  hard:   { pairs: 10, timeLimit: 150 },
+};
+
+const MEMORY_SYMBOLS = ['◆', '♥', '★', '♣', '♠', '♦', '◐', '✿', '▲', '●'];
+
 function Memory() {
-  const SYMBOLS = ['◆', '♥', '★', '♣', '♠', '♦', '◐', '✿'];
-  const make = () => {
-    const deck = [...SYMBOLS, ...SYMBOLS].map((s, i) => ({ id: i, s, matched: false }));
+  const [diff, setDiff] = useState<DiffLevel>('normal');
+  const [gameStarted, setGameStarted] = useState(false);
+
+  const makeDeck = useCallback((d: DiffLevel) => {
+    const { pairs } = MEMORY_CONFIG[d];
+    const syms = MEMORY_SYMBOLS.slice(0, pairs);
+    const deck = [...syms, ...syms].map((s, i) => ({ id: i, s, matched: false }));
     for (let i = deck.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [deck[i], deck[j]] = [deck[j], deck[i]];
     }
     return deck;
-  };
-  const [cards, setCards] = useState(make);
+  }, []);
+
+  const [cards, setCards] = useState(() => makeDeck('normal'));
   const [flipped, setFlipped] = useState<number[]>([]);
   const [moves, setMoves] = useState(0);
   const [time, setTime] = useState(0);
   const [running, setRunning] = useState(false);
+  const [timedOut, setTimedOut] = useState(false);
+  const [savedScore, setSavedScore] = useState<number | null>(null);
+
+  const cfg = MEMORY_CONFIG[diff];
+  const pairs = cfg.pairs;
+  const timeLimit = cfg.timeLimit;
   const won = cards.every(c => c.matched);
+  const timeUp = !won && timedOut;
+
+  // compute score: pairs matched * 100 - moves penalty, minimum 0
+  const matchedPairs = cards.filter(c => c.matched).length / 2;
+  const computeScore = (mp: number, mv: number, t: number) =>
+    Math.max(0, Math.round(mp * 100 - mv * 2 + Math.max(0, (timeLimit - t) * 0.5)));
 
   useEffect(() => {
-    if (!running || won) return;
-    const id = setInterval(() => setTime(t => t + 1), 1000);
+    if (!running || won || timedOut) return;
+    const id = setInterval(() => {
+      setTime(t => {
+        if (t + 1 >= timeLimit) { setTimedOut(true); setRunning(false); return timeLimit; }
+        return t + 1;
+      });
+    }, 1000);
     return () => clearInterval(id);
-  }, [running, won]);
+  }, [running, won, timedOut, timeLimit]);
+
+  // save score on game end
+  useEffect(() => {
+    if ((won || timedOut) && savedScore === null) {
+      const sc = computeScore(matchedPairs, moves, time);
+      saveToLeaderboard('memory', sc);
+      setSavedScore(sc);
+    }
+  }, [won, timedOut]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const flip = (idx: number) => {
+    if (!gameStarted || timedOut) return;
     if (!running) setRunning(true);
     if (flipped.length === 2) return;
     if (flipped.includes(idx) || cards[idx].matched) return;
@@ -269,71 +489,139 @@ function Memory() {
       }
     }
   };
-  const reset = () => { setCards(make()); setFlipped([]); setMoves(0); setTime(0); setRunning(false); };
+
+  const reset = (newDiff?: DiffLevel) => {
+    const d = newDiff ?? diff;
+    setCards(makeDeck(d));
+    setFlipped([]);
+    setMoves(0);
+    setTime(0);
+    setRunning(false);
+    setTimedOut(false);
+    setSavedScore(null);
+    setGameStarted(true);
+  };
+
+  const handleDiffChange = (d: DiffLevel) => {
+    setDiff(d);
+    setCards(makeDeck(d));
+    setFlipped([]);
+    setMoves(0);
+    setTime(0);
+    setRunning(false);
+    setTimedOut(false);
+    setSavedScore(null);
+    setGameStarted(false);
+  };
+
+  const timeRemaining = timeLimit - time;
+  const gridCols = diff === 'hard' ? 5 : diff === 'easy' ? 4 : 4;
+  const finalScore = savedScore ?? computeScore(matchedPairs, moves, time);
 
   return (
     <div className="memory">
       <div className="memory-hud">
         <span>Moves <strong>{moves}</strong></span>
         <span>·</span>
-        <span>Time <strong>{Math.floor(time/60)}:{String(time%60).padStart(2,'0')}</strong></span>
+        <span>Time <strong style={{ color: timeRemaining <= 15 ? 'var(--accent)' : undefined }}>{Math.floor(timeRemaining/60)}:{String(timeRemaining%60).padStart(2,'0')}</strong></span>
         <span>·</span>
-        <span>Matched <strong>{cards.filter(c => c.matched).length / 2}/{SYMBOLS.length}</strong></span>
+        <span>Matched <strong>{matchedPairs}/{pairs}</strong></span>
+        <span className="diff-badge">{diff.toUpperCase()}</span>
       </div>
-      <div className="memory-grid">
-        {cards.map((c, i) => {
-          const isOpen = flipped.includes(i) || c.matched;
-          return (
-            <button key={c.id} className={`mem-card ${isOpen ? 'open' : ''} ${c.matched ? 'matched' : ''}`} onClick={() => flip(i)}>
-              <span className="mem-back">?</span>
-              <span className="mem-front">{c.s}</span>
-            </button>
-          );
-        })}
+      <div className="diff-row">
+        <DifficultySelector
+          options={MEMORY_DIFFS}
+          selected={diff}
+          onChange={handleDiffChange}
+          disabled={running && !won && !timedOut}
+        />
       </div>
-      {won && (
-        <div className="memory-won">
-          🎉 Cleared in <strong>{moves}</strong> moves, <strong>{Math.floor(time/60)}:{String(time%60).padStart(2,'0')}</strong>
+      {!gameStarted ? (
+        <div className="game-start-screen">
+          <div className="game-start-info">{pairs * 2} cards · {timeLimit}s limit</div>
+          <button className="game-btn" onClick={() => reset()}>Start game</button>
         </div>
+      ) : (
+        <>
+          <div className={`memory-grid memory-grid-${gridCols}`}>
+            {cards.map((c, i) => {
+              const isOpen = flipped.includes(i) || c.matched;
+              return (
+                <button key={c.id} className={`mem-card ${isOpen ? 'open' : ''} ${c.matched ? 'matched' : ''}`} onClick={() => flip(i)}>
+                  <span className="mem-back">?</span>
+                  <span className="mem-front">{c.s}</span>
+                </button>
+              );
+            })}
+          </div>
+          {(won || timeUp) && (
+            <div className="memory-won">
+              {won ? (
+                <>Cleared in <strong>{moves}</strong> moves! Score: <strong>{finalScore}</strong></>
+              ) : (
+                <>Time&apos;s up! Score: <strong>{finalScore}</strong> ({matchedPairs}/{pairs} pairs)</>
+              )}
+            </div>
+          )}
+          {(won || timeUp) && <Leaderboard gameName="memory" currentScore={finalScore} />}
+          <button className="game-btn" onClick={() => reset()}>{(won || timeUp) ? 'Play again' : 'New game'}</button>
+        </>
       )}
-      <button className="game-btn" onClick={reset}>{won ? 'Play again' : 'New game'}</button>
     </div>
   );
 }
 
 // ─────────── 2048 ───────────
+const G2048_DIFFS = [
+  { id: 'normal' as DiffLevel, label: 'Normal', desc: '4×4 grid' },
+  { id: 'hard' as DiffLevel, label: 'Hard', desc: '5×5 grid · harder' },
+];
+
+const G2048_CONFIG = {
+  easy:   { n: 4 },
+  normal: { n: 4 },
+  hard:   { n: 5 },
+};
+
 function G2048() {
-  const N = 4;
-  const empty = () => Array.from({ length: N }, () => Array(N).fill(0));
-  const addRandom = (g: number[][]) => {
+  const [diff, setDiff] = useState<DiffLevel>('normal');
+  const [gameStarted, setGameStarted] = useState(false);
+  const N = G2048_CONFIG[diff].n;
+
+  const empty = useCallback((n: number) => Array.from({ length: n }, () => Array(n).fill(0)), []);
+
+  const addRandom = useCallback((g: number[][], n: number) => {
     const empties: [number, number][] = [];
-    for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) if (!g[r][c]) empties.push([r,c]);
+    for (let r = 0; r < n; r++) for (let c = 0; c < n; c++) if (!g[r][c]) empties.push([r,c]);
     if (!empties.length) return g;
     const [r, c] = empties[Math.floor(Math.random() * empties.length)];
     g[r][c] = Math.random() < 0.9 ? 2 : 4;
     return g;
-  };
-  const start = () => {
-    const g = empty(); addRandom(g); addRandom(g); return g;
-  };
-  const [grid, setGrid] = useState(start);
+  }, []);
+
+  const start = useCallback((n: number) => {
+    const g = empty(n); addRandom(g, n); addRandom(g, n); return g;
+  }, [empty, addRandom]);
+
+  const [grid, setGrid] = useState(() => start(4));
   const [score, setScore] = useState(0);
   const [best, setBest] = useState(() => {
     try { return parseInt(localStorage.getItem('gt.2048.best') || '0', 10); } catch { return 0; }
   });
   const [won, setWon] = useState(false);
   const [over, setOver] = useState(false);
+  const [savedScore, setSavedScore] = useState<number | null>(null);
 
-  const slide = (row: number[]): [number[], number] => {
+  const slide = useCallback((row: number[], n: number): [number[], number] => {
     const arr = row.filter(v => v);
     let gained = 0;
     for (let i = 0; i < arr.length - 1; i++) {
       if (arr[i] === arr[i+1]) { arr[i] *= 2; gained += arr[i]; arr[i+1] = 0; }
     }
     const compact = arr.filter(v => v);
-    while (compact.length < N) compact.push(0);
+    while (compact.length < n) compact.push(0);
     return [compact, gained];
-  };
+  }, []);
 
   const move = useCallback((dir: string) => {
     if (over) return;
@@ -347,7 +635,7 @@ function G2048() {
     if (dir === 'up')     rotations = 3;
     for (let i = 0; i < rotations; i++) g = rotate(g);
     const ng = g.map(row => {
-      const [r, gg] = slide(row);
+      const [r, gg] = slide(row, N);
       gained += gg;
       return r;
     });
@@ -355,7 +643,7 @@ function G2048() {
     for (let i = 0; i < (4 - rotations) % 4; i++) out = rotate(out);
     const changed = JSON.stringify(out) !== JSON.stringify(grid);
     if (changed) {
-      addRandom(out);
+      addRandom(out, N);
       setGrid(out);
       if (gained) setScore(s => {
         const ns = s + gained;
@@ -365,19 +653,28 @@ function G2048() {
         });
         return ns;
       });
-      let has2048 = false, anyEmpty = false, canMove = false;
+      const target = diff === 'hard' ? 4096 : 2048;
+      let hasTarget = false, anyEmpty = false, canMove = false;
       for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
-        if (out[r][c] === 2048) has2048 = true;
+        if (out[r][c] === target) hasTarget = true;
         if (out[r][c] === 0) anyEmpty = true;
         if (c < N-1 && out[r][c] === out[r][c+1]) canMove = true;
         if (r < N-1 && out[r][c] === out[r+1][c]) canMove = true;
       }
-      if (has2048 && !won) setWon(true);
+      if (hasTarget && !won) setWon(true);
       if (!anyEmpty && !canMove) setOver(true);
     }
-  }, [grid, over, won]);
+  }, [grid, over, won, N, diff, slide, addRandom]);
 
   useEffect(() => {
+    if (over && savedScore === null) {
+      saveToLeaderboard('2048', score);
+      setSavedScore(score);
+    }
+  }, [over, score, savedScore]);
+
+  useEffect(() => {
+    if (!gameStarted) return;
     const onKey = (e: KeyboardEvent) => {
       const map: {[key: string]: string} = { ArrowLeft: 'left', ArrowRight: 'right', ArrowUp: 'up', ArrowDown: 'down',
                     a: 'left', d: 'right', w: 'up', s: 'down' };
@@ -386,11 +683,31 @@ function G2048() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [move]);
+  }, [move, gameStarted]);
 
-  const reset = () => { setGrid(start()); setScore(0); setWon(false); setOver(false); };
-  const tileClass = (v: number) => `tile tile-${v}`;
+  const reset = (newDiff?: DiffLevel) => {
+    const d = newDiff ?? diff;
+    const n = G2048_CONFIG[d].n;
+    setGrid(start(n));
+    setScore(0);
+    setWon(false);
+    setOver(false);
+    setSavedScore(null);
+    setGameStarted(true);
+  };
 
+  const handleDiffChange = (d: DiffLevel) => {
+    setDiff(d);
+    const n = G2048_CONFIG[d].n;
+    setGrid(start(n));
+    setScore(0);
+    setWon(false);
+    setOver(false);
+    setSavedScore(null);
+    setGameStarted(false);
+  };
+
+  const tileClass = (v: number) => `tile tile-${Math.min(v, 2048)}`;
   const startRef = useRef<{x: number, y: number} | null>(null);
   const onTouchStart = (e: React.TouchEvent) => { const t = e.touches[0]; startRef.current = { x: t.clientX, y: t.clientY }; };
   const onTouchEnd = (e: React.TouchEvent) => {
@@ -403,36 +720,79 @@ function G2048() {
     else move(dy > 0 ? 'down' : 'up');
   };
 
+  const target = diff === 'hard' ? 4096 : 2048;
+
   return (
     <div className="g2048">
       <div className="g2048-hud">
         <span>Score <strong>{score}</strong></span>
         <span>·</span>
         <span>Best <strong>{best}</strong></span>
+        <span className="diff-badge">{diff.toUpperCase()}</span>
         <span className="g2048-hint">방향키 / WASD · 스와이프 OK</span>
       </div>
-      <div className="g2048-grid" onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-        {grid.map((row, r) => row.map((v, c) => (
-          <div key={`${r}-${c}`} className={tileClass(v)}>{v || ''}</div>
-        )))}
-        {(over || (won && score)) && (
-          <div className="g2048-overlay">
-            <div className="g2048-over-title">{won && !over ? 'You made 2048! 🎉' : 'Game over'}</div>
-            <div className="g2048-over-sub">Final score: {score}</div>
-            <div className="g2048-over-actions">
-              {won && !over && <button className="game-btn ghost" onClick={() => setWon(false)}>Keep going</button>}
-              <button className="game-btn" onClick={reset}>New game</button>
-            </div>
-          </div>
-        )}
+      <div className="diff-row">
+        <DifficultySelector
+          options={G2048_DIFFS}
+          selected={diff}
+          onChange={handleDiffChange}
+          disabled={gameStarted && !over && score > 0}
+        />
       </div>
-      <button className="game-btn ghost" onClick={reset}>Reset</button>
+      {!gameStarted ? (
+        <div className="game-start-screen">
+          <div className="game-start-info">{N}×{N} grid · target {target}</div>
+          <button className="game-btn" onClick={() => reset()}>Start game</button>
+        </div>
+      ) : (
+        <>
+          <div
+            className="g2048-grid"
+            style={{ '--g2048-n': N } as React.CSSProperties}
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
+          >
+            {grid.map((row, r) => row.map((v, c) => (
+              <div key={`${r}-${c}`} className={tileClass(v)}>{v || ''}</div>
+            )))}
+            {(over || (won && score)) && (
+              <div className="g2048-overlay">
+                <div className="g2048-over-title">{won && !over ? `You made ${target}!` : 'Game over'}</div>
+                <div className="g2048-over-sub">Final score: {score}</div>
+                <div className="g2048-over-actions">
+                  {won && !over && <button className="game-btn ghost" onClick={() => setWon(false)}>Keep going</button>}
+                  <button className="game-btn" onClick={() => reset()}>New game</button>
+                </div>
+              </div>
+            )}
+          </div>
+          {over && <Leaderboard gameName="2048" currentScore={score} />}
+          <button className="game-btn ghost" onClick={() => reset()}>Reset</button>
+        </>
+      )}
     </div>
   );
 }
 
 // ─────────── Typing Game ───────────
-const TYPING_TEXTS = [
+const TYPING_DIFFS = [
+  { id: 'easy' as DiffLevel, label: 'Easy', desc: 'Simple English sentences' },
+  { id: 'normal' as DiffLevel, label: 'Normal', desc: 'Code snippets' },
+  { id: 'hard' as DiffLevel, label: 'Hard', desc: 'Complex code with syntax' },
+];
+
+const TYPING_TEXTS_EASY = [
+  `Hello, my name is Kelvin.`,
+  `I love writing clean code every day.`,
+  `Practice makes perfect in programming.`,
+  `Reading documentation is very important.`,
+  `Build things, break things, learn things.`,
+  `Every great developer started as a beginner.`,
+  `Code is poetry written for machines to read.`,
+  `Debugging is twice as hard as writing code.`,
+];
+
+const TYPING_TEXTS_NORMAL = [
   `const greeting = "Hello, world!";`,
   `function add(a, b) { return a + b; }`,
   `const promise = new Promise((resolve) => resolve());`,
@@ -443,18 +803,35 @@ const TYPING_TEXTS = [
   `const sum = (nums) => nums.reduce((a, b) => a + b, 0);`,
 ];
 
+const TYPING_TEXTS_HARD = [
+  `const memoize = <T>(fn: (...args: T[]) => T) => { const cache = new Map(); return (...args: T[]) => { const key = JSON.stringify(args); return cache.has(key) ? cache.get(key) : cache.set(key, fn(...args)).get(key); }; };`,
+  `type DeepPartial<T> = { [P in keyof T]?: T[P] extends object ? DeepPartial<T[P]> : T[P]; };`,
+  `const pipe = (...fns: Function[]) => (x: unknown) => fns.reduce((v, f) => f(v), x);`,
+  `async function* paginate<T>(fetch: (page: number) => Promise<T[]>) { let page = 0; while (true) { const data = await fetch(page++); if (!data.length) break; yield* data; } }`,
+  `const debounce = <T extends unknown[]>(fn: (...a: T) => void, ms: number) => { let id: ReturnType<typeof setTimeout>; return (...a: T) => { clearTimeout(id); id = setTimeout(() => fn(...a), ms); }; };`,
+];
+
+const TYPING_TEXTS_MAP = {
+  easy: TYPING_TEXTS_EASY,
+  normal: TYPING_TEXTS_NORMAL,
+  hard: TYPING_TEXTS_HARD,
+};
+
 function TypingGame() {
-  const [textIndex, setTextIndex] = useState(() => Math.floor(Math.random() * TYPING_TEXTS.length));
+  const [diff, setDiff] = useState<DiffLevel>('normal');
+  const texts = TYPING_TEXTS_MAP[diff];
+  const [textIndex, setTextIndex] = useState(() => Math.floor(Math.random() * texts.length));
   const [userInput, setUserInput] = useState('');
   const [timeLeft, setTimeLeft] = useState(60);
   const [duration, setDuration] = useState(60);
   const [isActive, setIsActive] = useState(false);
   const [isDone, setIsDone] = useState(false);
   const [results, setResults] = useState<{ wpm: number; accuracy: number; timeTaken: number } | null>(null);
+  const [savedScore, setSavedScore] = useState<number | null>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const startTimeRef = useRef<number>(0);
 
-  const currentText = TYPING_TEXTS[textIndex];
+  const currentText = texts[textIndex];
 
   const computeResults = useCallback((input: string, elapsed: number) => {
     const totalChars = currentText.length;
@@ -472,7 +849,10 @@ function TypingGame() {
         if (t <= 1) {
           clearInterval(id);
           const elapsed = duration - (t - 1);
-          setResults(computeResults(userInput, elapsed));
+          const r = computeResults(userInput, elapsed);
+          setResults(r);
+          saveToLeaderboard('typing', r.wpm);
+          setSavedScore(r.wpm);
           setIsDone(true);
           setIsActive(false);
           return 0;
@@ -493,20 +873,35 @@ function TypingGame() {
     setUserInput(val);
     if (val === currentText) {
       const elapsed = Math.round((Date.now() - startTimeRef.current) / 1000) || 1;
-      setResults(computeResults(val, elapsed));
+      const r = computeResults(val, elapsed);
+      setResults(r);
+      if (savedScore === null) { saveToLeaderboard('typing', r.wpm); setSavedScore(r.wpm); }
       setIsDone(true);
       setIsActive(false);
     }
   };
 
   const reset = () => {
-    setTextIndex(Math.floor(Math.random() * TYPING_TEXTS.length));
+    setTextIndex(Math.floor(Math.random() * texts.length));
     setUserInput('');
     setTimeLeft(duration);
     setIsActive(false);
     setIsDone(false);
     setResults(null);
+    setSavedScore(null);
     setTimeout(() => inputRef.current?.focus(), 50);
+  };
+
+  const handleDiffChange = (d: DiffLevel) => {
+    setDiff(d);
+    const newTexts = TYPING_TEXTS_MAP[d];
+    setTextIndex(Math.floor(Math.random() * newTexts.length));
+    setUserInput('');
+    setTimeLeft(duration);
+    setIsActive(false);
+    setIsDone(false);
+    setResults(null);
+    setSavedScore(null);
   };
 
   const setDurationAndReset = (d: number) => {
@@ -516,8 +911,11 @@ function TypingGame() {
     setIsActive(false);
     setIsDone(false);
     setResults(null);
-    setTextIndex(Math.floor(Math.random() * TYPING_TEXTS.length));
+    setSavedScore(null);
+    setTextIndex(Math.floor(Math.random() * texts.length));
   };
+
+  const lbEntries = getLeaderboard('typing');
 
   return (
     <div className="typing-game">
@@ -527,6 +925,15 @@ function TypingGame() {
           <button className={`game-btn ghost typing-dur-btn${duration === 30 ? ' active' : ''}`} onClick={() => setDurationAndReset(30)} disabled={isActive}>30s</button>
           <button className={`game-btn ghost typing-dur-btn${duration === 60 ? ' active' : ''}`} onClick={() => setDurationAndReset(60)} disabled={isActive}>60s</button>
         </div>
+        <span className="diff-badge">{diff.toUpperCase()}</span>
+      </div>
+      <div className="diff-row">
+        <DifficultySelector
+          options={TYPING_DIFFS}
+          selected={diff}
+          onChange={handleDiffChange}
+          disabled={isActive}
+        />
       </div>
 
       <div className="typing-text-display">
@@ -568,6 +975,8 @@ function TypingGame() {
               <div className="typing-stat-label">Time</div>
             </div>
           </div>
+          {lbEntries.length > 0 && lbEntries[0].score === results.wpm && <div className="new-best">New best WPM!</div>}
+          <Leaderboard gameName="typing" currentScore={results.wpm} />
         </div>
       )}
 
@@ -577,12 +986,13 @@ function TypingGame() {
 }
 
 // ─────────── Tech Quiz Game ───────────
-const QUIZ_QUESTIONS = [
+const QUIZ_QUESTIONS_ALL = [
   {
     question: "What does the following log?\n\nfunction makeCounter() {\n  let count = 0;\n  return () => ++count;\n}\nconst c = makeCounter();\nc(); c();\nconsole.log(c());",
     options: ["1", "2", "3", "undefined"],
     correct: 2,
     explanation: "makeCounter()는 클로저를 반환합니다. count는 호출마다 증가하므로 세 번째 호출 결과는 3입니다.",
+    difficulty: 'normal',
   },
   {
     question: "TypeScript에서 `unknown`과 `any`의 차이점은?",
@@ -594,18 +1004,21 @@ const QUIZ_QUESTIONS = [
     ],
     correct: 1,
     explanation: "`unknown`은 타입 안전한 `any`입니다. 사용 전에 typeof/instanceof 등으로 타입을 좁혀야 합니다.",
+    difficulty: 'normal',
   },
   {
     question: "Python에서 다음 리스트 컴프리헨션의 결과는?\n\n[x**2 for x in range(5) if x % 2 == 0]",
     options: ["[0, 4, 16]", "[1, 9, 25]", "[0, 1, 4, 9, 16]", "[4, 16]"],
     correct: 0,
     explanation: "range(5)는 0~4. 짝수는 0, 2, 4이며 제곱하면 [0, 4, 16]입니다.",
+    difficulty: 'easy',
   },
   {
     question: "다음 async/await 코드의 출력 순서는?\n\nasync function main() {\n  console.log('A');\n  await Promise.resolve();\n  console.log('B');\n}\nmain();\nconsole.log('C');",
     options: ["A B C", "A C B", "C A B", "B A C"],
     correct: 1,
     explanation: "await는 microtask queue에 나머지 실행을 넣습니다. 동기 코드 'C'가 먼저 출력된 후 'B'가 실행됩니다.",
+    difficulty: 'hard',
   },
   {
     question: "TypeScript Generic에서 `T extends string`의 의미는?",
@@ -617,6 +1030,7 @@ const QUIZ_QUESTIONS = [
     ],
     correct: 1,
     explanation: "`extends` 제약은 T가 string에 할당 가능해야 함을 의미합니다. string 리터럴 타입도 포함됩니다.",
+    difficulty: 'normal',
   },
   {
     question: "Python 데코레이터 `@staticmethod`의 역할은?",
@@ -628,12 +1042,14 @@ const QUIZ_QUESTIONS = [
     ],
     correct: 0,
     explanation: "`@staticmethod`는 self나 cls를 받지 않으며, 클래스나 인스턴스 없이 호출 가능한 유틸리티 메서드를 만듭니다.",
+    difficulty: 'easy',
   },
   {
     question: "JavaScript spread 연산자에서 다음의 결과는?\n\nconst a = [1, 2];\nconst b = [3, 4];\nconsole.log([...a, ...b, 5]);",
     options: ["[[1,2],[3,4],5]", "[1,2,3,4,5]", "[1,2,[3,4],5]", "TypeError"],
     correct: 1,
     explanation: "spread 연산자(`...`)는 iterable을 펼칩니다. 두 배열이 순서대로 합쳐져 [1,2,3,4,5]가 됩니다.",
+    difficulty: 'easy',
   },
   {
     question: "TypeScript `interface`와 `type alias`의 차이점으로 옳은 것은?",
@@ -645,6 +1061,7 @@ const QUIZ_QUESTIONS = [
     ],
     correct: 2,
     explanation: "interface는 같은 이름으로 여러 번 선언하면 자동 병합(declaration merging)됩니다. type alias는 재선언이 불가합니다.",
+    difficulty: 'normal',
   },
   {
     question: "JavaScript Promise.all([p1, p2, p3])의 동작은?",
@@ -656,24 +1073,110 @@ const QUIZ_QUESTIONS = [
     ],
     correct: 1,
     explanation: "Promise.all은 병렬로 실행하며 모두 resolve시 배열을 반환합니다. 하나라도 reject되면 전체가 reject됩니다. (Promise.allSettled와 다름)",
+    difficulty: 'normal',
   },
   {
     question: "Python에서 `lambda x, y: x if x > y else y`와 동일한 역할의 내장 함수는?",
     options: ["abs(x, y)", "max(x, y)", "sum(x, y)", "sorted(x, y)"],
     correct: 1,
     explanation: "이 lambda는 두 값 중 큰 값을 반환합니다. Python 내장 함수 `max(x, y)`와 동일합니다.",
+    difficulty: 'easy',
+  },
+  // Hard-only extra questions
+  {
+    question: "다음 TypeScript 코드의 타입 오류 원인은?\n\ntype Readonly<T> = { readonly [K in keyof T]: T[K] };\nconst obj: Readonly<{x: number}> = {x: 1};\nobj.x = 2;",
+    options: [
+      "Readonly는 built-in 타입이라 재정의 불가",
+      "readonly 속성은 수정할 수 없다",
+      "keyof 연산자 문법 오류",
+      "타입 오류 없음",
+    ],
+    correct: 1,
+    explanation: "`readonly` 수식어가 붙은 속성은 초기화 후 수정할 수 없습니다.",
+    difficulty: 'hard',
+  },
+  {
+    question: "JavaScript의 WeakMap과 Map의 차이점으로 옳은 것은?",
+    options: [
+      "WeakMap은 primitive key를 허용한다",
+      "WeakMap의 키는 강한 참조(strong reference)를 유지한다",
+      "WeakMap 키는 GC 대상이 될 수 있어 메모리 누수를 방지한다",
+      "WeakMap은 iterable하다",
+    ],
+    correct: 2,
+    explanation: "WeakMap의 키는 약한 참조(weak reference)입니다. 키 객체에 다른 참조가 없으면 GC가 수거할 수 있어 메모리 누수를 방지합니다.",
+    difficulty: 'hard',
+  },
+  {
+    question: "Python `__slots__`를 클래스에 정의하면 어떤 효과가 있는가?",
+    options: [
+      "클래스를 추상 클래스로 만든다",
+      "인스턴스 __dict__를 제거해 메모리를 절약한다",
+      "메서드를 슬롯화해 호출 속도를 높인다",
+      "클래스 상속을 금지한다",
+    ],
+    correct: 1,
+    explanation: "`__slots__`는 인스턴스의 `__dict__`를 제거하고 고정 속성만 허용합니다. 메모리 사용량이 줄고 접근 속도가 빨라집니다.",
+    difficulty: 'hard',
+  },
+  {
+    question: "다음 JS 코드 결과는?\n\nconst x = [1, [2, [3, [4]]]];\nconsole.log(x.flat(Infinity));",
+    options: ["[1, 2, 3, 4]", "[1, [2, [3, [4]]]]", "[1, 2, [3, [4]]]", "TypeError"],
+    correct: 0,
+    explanation: "`Array.flat(Infinity)`는 중첩된 모든 배열을 단일 배열로 평탄화합니다.",
+    difficulty: 'hard',
+  },
+  {
+    question: "TypeScript에서 `never` 타입이 실제로 유용한 경우는?",
+    options: [
+      "null을 대신해 빈 값을 표현할 때",
+      "exhaustive check에서 처리되지 않은 케이스를 컴파일 에러로 잡을 때",
+      "any보다 더 넓은 타입이 필요할 때",
+      "함수의 기본 반환 타입으로 사용할 때",
+    ],
+    correct: 1,
+    explanation: "`never`는 도달 불가 코드를 표현합니다. switch의 default에서 `const _: never = value`로 exhaustive check를 강제할 수 있습니다.",
+    difficulty: 'hard',
   },
 ];
 
+const QUIZ_DIFFS = [
+  { id: 'easy' as DiffLevel, label: 'Easy', desc: '6 questions · beginner' },
+  { id: 'normal' as DiffLevel, label: 'Normal', desc: '10 questions · mixed' },
+  { id: 'hard' as DiffLevel, label: 'Hard', desc: '15 questions · tricky' },
+];
+
+const QUIZ_CONFIG = {
+  easy:   { count: 6 },
+  normal: { count: 10 },
+  hard:   { count: 15 },
+};
+
+function pickQuestions(diff: DiffLevel) {
+  const { count } = QUIZ_CONFIG[diff];
+  let pool = [...QUIZ_QUESTIONS_ALL];
+  if (diff === 'easy') pool = pool.filter(q => q.difficulty === 'easy' || q.difficulty === 'normal');
+  // hard uses all questions
+  // shuffle
+  for (let i = pool.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  return pool.slice(0, Math.min(count, pool.length));
+}
+
 function QuizGame() {
+  const [diff, setDiff] = useState<DiffLevel>('normal');
+  const [questions, setQuestions] = useState(() => pickQuestions('normal'));
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const [isFinished, setIsFinished] = useState(false);
+  const [savedScore, setSavedScore] = useState<number | null>(null);
 
-  const question = QUIZ_QUESTIONS[currentIndex];
+  const question = questions[currentIndex];
   const isAnswered = selectedOption !== null;
-  const total = QUIZ_QUESTIONS.length;
+  const total = questions.length;
 
   const handleSelect = (optionIndex: number) => {
     if (isAnswered) return;
@@ -692,11 +1195,30 @@ function QuizGame() {
     }
   };
 
+  useEffect(() => {
+    if (isFinished && savedScore === null) {
+      saveToLeaderboard('quiz', score);
+      setSavedScore(score);
+    }
+  }, [isFinished, score, savedScore]);
+
   const handleReplay = () => {
     setCurrentIndex(0);
     setSelectedOption(null);
     setScore(0);
     setIsFinished(false);
+    setSavedScore(null);
+    setQuestions(pickQuestions(diff));
+  };
+
+  const handleDiffChange = (d: DiffLevel) => {
+    setDiff(d);
+    setCurrentIndex(0);
+    setSelectedOption(null);
+    setScore(0);
+    setIsFinished(false);
+    setSavedScore(null);
+    setQuestions(pickQuestions(d));
   };
 
   const getOptionClass = (optionIndex: number) => {
@@ -714,6 +1236,8 @@ function QuizGame() {
     else if (pct >= 60) grade = '잘 했어요! 👍';
     else grade = '더 공부해봐요! 📚';
 
+    const lbEntries = getLeaderboard('quiz');
+
     return (
       <div className="quiz-game">
         <div className="quiz-result-screen">
@@ -723,6 +1247,11 @@ function QuizGame() {
             <span className="quiz-result-denom">/ {total}</span>
           </div>
           <div className="quiz-result-pct">{pct}% 정답</div>
+          {lbEntries.length > 0 && lbEntries[0].score === score && <div className="new-best">New best!</div>}
+          <Leaderboard gameName="quiz" currentScore={score} />
+          <div className="diff-row" style={{ marginTop: '16px' }}>
+            <DifficultySelector options={QUIZ_DIFFS} selected={diff} onChange={handleDiffChange} />
+          </div>
           <button className="game-btn" onClick={handleReplay}>다시 풀기</button>
         </div>
       </div>
@@ -731,12 +1260,21 @@ function QuizGame() {
 
   return (
     <div className="quiz-game">
+      <div className="diff-row">
+        <DifficultySelector
+          options={QUIZ_DIFFS}
+          selected={diff}
+          onChange={handleDiffChange}
+          disabled={currentIndex > 0}
+        />
+      </div>
       <div className="quiz-progress-bar">
         <div className="quiz-progress-fill" style={{ width: `${((currentIndex) / total) * 100}%` }} />
       </div>
       <div className="quiz-counter">
         Question <strong>{currentIndex + 1}</strong> / {total}
         <span className="quiz-score-inline">Score: {score}</span>
+        <span className="diff-badge">{diff.toUpperCase()}</span>
       </div>
       <div className="quiz-question">
         {question.question.split('\n').map((line, i) => (
