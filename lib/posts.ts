@@ -10,10 +10,23 @@ export interface Post {
   body: Block[];
 }
 
-interface Block {
+export interface Block {
   type: 'p' | 'h2' | 'code' | 'quote';
   text?: string;
   lang?: string;
+}
+
+export function calculateReadingTime(body: Block[]): number {
+  let totalWords = 0;
+  body.forEach(block => {
+    if (block.type === 'p' && block.text) {
+      totalWords += block.text.split(/\s+/).length;
+    }
+    if (block.type === 'code' && block.text) {
+      totalWords += block.text.split(/\s+/).length * 0.5;
+    }
+  });
+  return Math.max(1, Math.ceil(totalWords / 200));
 }
 
 export const POSTS: Post[] = [
@@ -388,7 +401,10 @@ export const POSTS: Post[] = [
 ];
 
 export function getPosts() {
-  return POSTS;
+  return POSTS.map(post => ({
+    ...post,
+    readMin: calculateReadingTime(post.body),
+  }));
 }
 
 export function getPostById(id: string) {
