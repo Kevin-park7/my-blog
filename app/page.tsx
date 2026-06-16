@@ -11,7 +11,7 @@ export default function Home() {
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-[var(--rule)] bg-[var(--paper-2)] backdrop-blur">
         <div className="max-w-4xl mx-auto px-6 h-16 flex items-center justify-between">
-          <h1 className="text-xl font-bold">Good Thinking</h1>
+          <h1 className="text-xl font-bold tracking-tight">kelvin.dev ✦</h1>
           <button
             onClick={() => setDark(!dark)}
             className="p-2 hover:bg-[var(--paper)]"
@@ -22,12 +22,41 @@ export default function Home() {
       </header>
 
       {/* Hero */}
-      <section className="py-24 text-center border-b border-[var(--rule)]">
-        <div className="max-w-3xl mx-auto px-6">
-          <div className="text-sm text-[var(--muted)] mb-4">A small corner of the internet · est. 2026</div>
-          <h2 className="text-6xl font-bold mb-4">Good <em className="italic">Thinking</em>.</h2>
-          <p className="text-lg mb-2">좋은 생각이 자라는 곳.</p>
-          <p className="text-[var(--muted)]">A place where good thinking grows — read, play, build.</p>
+      <section className="relative py-28 text-center border-b border-[var(--rule)] overflow-hidden">
+        {/* Gradient background */}
+        <div
+          className="absolute inset-0 -z-10"
+          style={{
+            background: 'linear-gradient(135deg, #1e3a8a 0%, #7c2d12 60%, #f97316 100%)',
+          }}
+        />
+        {/* Overlay for text contrast */}
+        <div className="absolute inset-0 -z-10 bg-black/40" />
+
+        <div className="max-w-3xl mx-auto px-6 relative">
+          <div className="text-sm text-white/60 mb-6 tracking-widest uppercase">
+            A developer&apos;s corner · est. 2026
+          </div>
+          <h2 className="text-5xl md:text-6xl font-bold mb-5 text-white leading-tight">
+            Where Code Meets <em className="italic text-orange-300">Clarity</em>
+          </h2>
+          <p className="text-lg text-white/75 mb-10">
+            A developer&apos;s space for learning, building &amp; sharing
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              href="/blog"
+              className="px-6 py-3 bg-white text-[var(--ink)] font-semibold rounded-lg hover:bg-orange-50 transition"
+            >
+              Explore Posts →
+            </Link>
+            <Link
+              href="/games"
+              className="px-6 py-3 border border-white/60 text-white font-semibold rounded-lg hover:bg-white/10 transition"
+            >
+              Try Games →
+            </Link>
+          </div>
         </div>
       </section>
 
@@ -64,7 +93,7 @@ export default function Home() {
 
       {/* Footer */}
       <footer className="py-8 text-center text-[var(--muted)] text-sm">
-        <p>Good Thinking · since 2026</p>
+        <p>kelvin.dev · since 2026</p>
       </footer>
     </div>
   );
